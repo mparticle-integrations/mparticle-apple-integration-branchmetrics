@@ -80,10 +80,9 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     dispatch_once(&branchMetricsPredicate, ^{
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         branchInstance = [Branch getInstance:branchKey];
+        _started = YES;
 
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
-            _started = YES;
-
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
                                                    mParticleEmbeddedSDKInstanceKey:[[self class] kitCode],
@@ -163,6 +162,13 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
 - (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url sourceApplication:(nonnull NSString *)sourceApplication annotation:(nullable id)annotation {
     [branchInstance handleDeepLink:url];
+
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
+}
+
+- (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
+    [branchInstance handlePushNotification:userInfo];
 
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
