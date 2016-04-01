@@ -45,20 +45,13 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
 #pragma mark MPKitInstanceProtocol methods
 - (instancetype)initWithConfiguration:(NSDictionary *)configuration startImmediately:(BOOL)startImmediately {
-    NSAssert(configuration != nil, @"Required parameter. It cannot be nil.");
     self = [super init];
-    if (!self) {
-        return nil;
-    }
-
     NSString *branchKey = configuration[ekBMAppKey];
-    branchInstance = nil;
-
-    BOOL validConfiguration = branchKey != nil && (NSNull *)branchKey != [NSNull null] && (branchKey.length > 0);
-    if (!validConfiguration) {
+    if (!self || !branchKey) {
         return nil;
     }
 
+    branchInstance = nil;
     forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     _configuration = configuration;
     _started = startImmediately;
@@ -85,7 +78,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
-                                                   mParticleEmbeddedSDKInstanceKey:[[self class] kitCode],
                                                    @"branchKey":branchKey} mutableCopy];
 
                 if (params && params.count > 0) {
@@ -97,10 +89,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
                 }
 
                 [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                                    object:nil
-                                                                  userInfo:userInfo];
-
-                [[NSNotificationCenter defaultCenter] postNotificationName:mParticleEmbeddedSDKDidBecomeActiveNotification
                                                                     object:nil
                                                                   userInfo:userInfo];
             });
