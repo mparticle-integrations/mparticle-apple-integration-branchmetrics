@@ -17,10 +17,11 @@
 //
 
 #import "MPKitBranchMetrics.h"
-#import "MPEvent.h"
-#import "mParticle.h"
-#import "MPKitRegister.h"
-#import "Branch.h"
+#ifdef COCOAPODS
+    #import <Branch/Branch.h>
+#else
+    #import <BranchSDK/Branch.h>
+#endif
 
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
@@ -28,6 +29,11 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 @interface MPKitBranchMetrics() {
     Branch *branchInstance;
     BOOL forwardScreenViews;
+    NSDictionary *temporaryParams;
+    NSError *temporaryError;
+    BOOL isTemporaryInfoValid;
+    BOOL isBranchRequestPending;
+    void (^completionHandlerCopy)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error);
 }
 
 @end
@@ -55,6 +61,8 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     _configuration = configuration;
     _started = startImmediately;
+    isTemporaryInfoValid = NO;
+    isBranchRequestPending = NO;
 
     if (startImmediately) {
         [self start];
@@ -75,8 +83,21 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
         branchInstance = [Branch getInstance:branchKey];
         _started = YES;
 
+        isBranchRequestPending = YES;
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                isBranchRequestPending = NO;
+                
+                if (completionHandlerCopy) {
+                    completionHandlerCopy(params, error);
+                    completionHandlerCopy = nil;
+                }
+                else {
+                    isTemporaryInfoValid = YES;
+                    temporaryParams = params;
+                    temporaryError = error;
+                }
+                
                 NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
                                                    @"branchKey":branchKey} mutableCopy];
 
@@ -174,6 +195,36 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
     execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
+}
+
+- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error))completionHandler {
+    MPKitExecStatus *status;
+    
+    if (!temporaryError) {
+        status = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
+    }
+    else {
+        status = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeFail];
+    }
+    
+    // If we already have deep linking info stored in temporaries
+    if (isTemporaryInfoValid) {
+        // Trigger completion handler immediately, then clear state
+        completionHandler(temporaryParams, temporaryError);
+        isTemporaryInfoValid = NO;
+        temporaryParams = nil;
+        temporaryError = nil;
+    }
+    else if (isBranchRequestPending) {
+        // Otherwise if we're waiting for info from branch, save the completion handler
+        completionHandlerCopy = [completionHandler copy];
+    }
+    else {
+        // If branch has already called back to us, we won't get any more info from them
+        // So this is a no-op
+    }
+    
+    return status;
 }
 
 @end

@@ -17,8 +17,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MPKitExecStatus.h"
-#import "MPKitProtocol.h"
+#if defined NO_USE_FRAMEWORKS
+#import <mParticle-Apple-SDK/mParticle.h>
+#else
+@import mParticle_Apple_SDK;
+#endif
 
 @interface MPKitBranchMetrics : NSObject <MPKitProtocol>
 
