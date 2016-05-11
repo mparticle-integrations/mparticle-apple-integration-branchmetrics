@@ -17,10 +17,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#if defined NO_USE_FRAMEWORKS
-#import <mParticle-Apple-SDK/mParticle.h>
+#ifdef COCOAPODS
+#import "mParticle.h"
 #else
-@import mParticle_Apple_SDK;
+#import <mParticle_Apple_SDK/mParticle.h>
 #endif
 
 @interface MPKitBranchMetrics : NSObject <MPKitProtocol>
