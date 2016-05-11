@@ -17,7 +17,7 @@
 //
 
 #import "MPKitBranchMetrics.h"
-#ifdef COCOAPODS
+#if defined(COCOAPODS) || defined(MPARTICLE_MANUAL_INSTALL)
     #import <Branch/Branch.h>
 #else
     #import <BranchSDK/Branch.h>
@@ -81,11 +81,11 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     dispatch_once(&branchMetricsPredicate, ^{
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         branchInstance = [Branch getInstance:branchKey];
-        _started = YES;
 
         isBranchRequestPending = YES;
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                _started = YES;
                 isBranchRequestPending = NO;
                 
                 if (completionHandlerCopy) {
