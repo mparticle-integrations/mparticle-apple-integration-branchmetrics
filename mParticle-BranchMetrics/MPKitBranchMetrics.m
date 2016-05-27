@@ -31,9 +31,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     BOOL forwardScreenViews;
     NSDictionary *temporaryParams;
     NSError *temporaryError;
-    BOOL isTemporaryInfoValid;
-    BOOL isBranchRequestPending;
-    void (^completionHandlerCopy)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error);
+    void (^completionHandlerCopy)(NSDictionary<NSString *, NSString *> *, NSError *);
 }
 
 @end
@@ -61,8 +59,8 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     _configuration = configuration;
     _started = startImmediately;
-    isTemporaryInfoValid = NO;
-    isBranchRequestPending = NO;
+    temporaryParams = nil;
+    temporaryError = nil;
 
     if (startImmediately) {
         [self start];
@@ -82,38 +80,36 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         branchInstance = [Branch getInstance:branchKey];
 
-        isBranchRequestPending = YES;
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                _started = YES;
-                isBranchRequestPending = NO;
-                
-                if (completionHandlerCopy) {
-                    completionHandlerCopy(params, error);
-                    completionHandlerCopy = nil;
-                }
-                else {
-                    isTemporaryInfoValid = YES;
-                    temporaryParams = params;
-                    temporaryError = error;
-                }
-                
-                NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
-                                                   @"branchKey":branchKey} mutableCopy];
+            temporaryParams = [params copy];
+            temporaryError = [error copy];
 
-                if (params && params.count > 0) {
-                    userInfo[@"params"] = params;
-                }
-
-                if (error) {
-                    userInfo[@"error"] = error;
-                }
-
-                [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                                    object:nil
-                                                                  userInfo:userInfo];
-            });
+            if (completionHandlerCopy) {
+                completionHandlerCopy(params, error);
+                completionHandlerCopy = nil;
+            }
         }];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (branchInstance) {
+                _started = YES;
+            }
+
+            NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
+                                               @"branchKey":branchKey} mutableCopy];
+
+            if (temporaryParams && temporaryParams.count > 0) {
+                userInfo[@"params"] = temporaryParams;
+            }
+
+            if (temporaryError) {
+                userInfo[@"error"] = temporaryError;
+            }
+
+            [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
+                                                                object:nil
+                                                              userInfo:userInfo];
+        });
     });
 }
 
@@ -198,33 +194,16 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 }
 
 - (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error))completionHandler {
-    MPKitExecStatus *status;
-    
-    if (!temporaryError) {
-        status = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    }
-    else {
-        status = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeFail];
-    }
-    
-    // If we already have deep linking info stored in temporaries
-    if (isTemporaryInfoValid) {
-        // Trigger completion handler immediately, then clear state
+    if (_started && (temporaryParams || temporaryError)) {
         completionHandler(temporaryParams, temporaryError);
-        isTemporaryInfoValid = NO;
         temporaryParams = nil;
         temporaryError = nil;
-    }
-    else if (isBranchRequestPending) {
-        // Otherwise if we're waiting for info from branch, save the completion handler
+    } else {
         completionHandlerCopy = [completionHandler copy];
     }
-    else {
-        // If branch has already called back to us, we won't get any more info from them
-        // So this is a no-op
-    }
-    
-    return status;
+
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
 }
 
 @end
