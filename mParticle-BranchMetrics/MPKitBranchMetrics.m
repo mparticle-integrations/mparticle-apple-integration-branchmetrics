@@ -86,7 +86,8 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
             if (completionHandlerCopy) {
                 completionHandlerCopy(params, error);
-                completionHandlerCopy = nil;
+                temporaryParams = nil;
+                temporaryError = nil;
             }
         }];
 
