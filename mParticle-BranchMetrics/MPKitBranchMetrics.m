@@ -69,7 +69,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     return self;
 }
 
-- (id const)kitInstance {
+- (id const)providerKitInstance {
     return [self started] ? branchInstance : nil;
 }
 
