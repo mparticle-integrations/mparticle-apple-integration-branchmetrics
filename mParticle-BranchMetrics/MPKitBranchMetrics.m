@@ -195,12 +195,11 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 }
 
 - (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error))completionHandler {
+    completionHandlerCopy = [completionHandler copy];
     if (_started && (temporaryParams || temporaryError)) {
         completionHandler(temporaryParams, temporaryError);
         temporaryParams = nil;
         temporaryError = nil;
-    } else {
-        completionHandlerCopy = [completionHandler copy];
     }
 
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
