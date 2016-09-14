@@ -23,6 +23,11 @@
     #import <BranchSDK/Branch.h>
 #endif
 
+#if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+    #import <UserNotifications/UserNotifications.h>
+    #import <UserNotifications/UNUserNotificationCenter.h>
+#endif
+
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
@@ -179,6 +184,22 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
+
+#if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification {
+    [branchInstance handlePushNotification:notification.request.content.userInfo];
+    
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
+}
+
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
+    [branchInstance handlePushNotification:response.notification.request.content.userInfo];
+    
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
+}
+#endif
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
     MPKitExecStatus *execStatus;
