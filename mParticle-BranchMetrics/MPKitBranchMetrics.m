@@ -36,7 +36,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     BOOL forwardScreenViews;
     NSDictionary *temporaryParams;
     NSError *temporaryError;
-    void (^completionHandlerCopy)(NSDictionary<NSString *, NSString *> *, NSError *);
+    void (^completionHandlerCopy)(NSDictionary *, NSError *);
 }
 
 @end
@@ -215,7 +215,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     return execStatus;
 }
 
-- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error))completionHandler {
+- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary *linkInfo, NSError *error))completionHandler {
     if (_started && (temporaryParams || temporaryError)) {
         completionHandler(temporaryParams, temporaryError);
         temporaryParams = nil;
