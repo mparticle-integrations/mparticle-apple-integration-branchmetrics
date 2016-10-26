@@ -12,6 +12,46 @@ A kit takes care of initializing and forwarding information depending on what yo
 
 Please refer to installation instructions in the core mParticle Apple SDK [README](https://github.com/mParticle/mparticle-apple-sdk#get-the-sdk), or check out our [SDK Documentation](http://docs.mparticle.com/#mobile-sdk-guide) site to learn more.
 
+## Deep-linking
+
+When working with deep-linking register to observe the `mParticleKitDidBecomeActiveNotification` notification, and implement the `application:continueUserActivity:restorationHandler:` UIApplicationDelegate method.
+
+Call the mParticle SDK `checkForDeferredDeepLinkWithCompletionHandler:` method to retrieve the respective information.
+
+```objective-c
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleKitDidBecomeActive:)
+                                                 name:mParticleKitDidBecomeActiveNotification
+                                               object:nil];
+
+    [[MParticle sharedInstance] startWithKey:@"<<Your app key>>"
+                                      secret:@"<<Your app secret>>"];
+
+    return YES;
+}
+
+- (void)handleKitDidBecomeActive:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    NSNumber *kitNumber = userInfo[mParticleKitInstanceKey];
+
+    if ([kitNumber isEqualToNumber:@(MPKitInstanceBranchMetrics)]) {
+        [[MParticle sharedInstance] checkForDeferredDeepLinkWithCompletionHandler:^(NSDictionary * _Nullable params, NSError * _Nullable error) {
+            if (params) {
+                NSLog(@"params: %@", params);
+            }
+        }];
+    }
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler {
+    [[MParticle sharedInstance] checkForDeferredDeepLinkWithCompletionHandler:^(NSDictionary * _Nullable linkInfo, NSError * _Nullable error) {
+        NSLog(@"linkInfo: %@", linkInfo);
+    }];
+
+    return YES;
+}
+```
 
 ## Support
 

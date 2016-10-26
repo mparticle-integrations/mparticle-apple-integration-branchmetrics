@@ -36,7 +36,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     BOOL forwardScreenViews;
     NSDictionary *temporaryParams;
     NSError *temporaryError;
-    void (^completionHandlerCopy)(NSDictionary<NSString *, NSString *> *, NSError *);
+    void (^completionHandlerCopy)(NSDictionary *, NSError *);
 }
 
 @end
@@ -188,14 +188,14 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification {
     [branchInstance handlePushNotification:notification.request.content.userInfo];
-    
+
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
     [branchInstance handlePushNotification:response.notification.request.content.userInfo];
-    
+
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
@@ -215,7 +215,7 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     return execStatus;
 }
 
-- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary<NSString *, NSString *> *linkInfo, NSError *error))completionHandler {
+- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary *linkInfo, NSError *error))completionHandler {
     if (_started && (temporaryParams || temporaryError)) {
         completionHandler(temporaryParams, temporaryError);
         temporaryParams = nil;
