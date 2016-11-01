@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-BranchMetrics"
-    s.version          = "6.10.2"
+    s.version          = "6.10.4"
     s.summary          = "BranchMetrics integration for mParticle"
 
     s.description      = <<-DESC
@@ -15,6 +15,6 @@ Pod::Spec.new do |s|
 
     s.ios.deployment_target = "8.0"
     s.ios.source_files      = 'mParticle-BranchMetrics/*.{h,m,mm}'
-    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 6.10.2'
-    s.ios.dependency 'Branch', '0.12.12'
+    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 6.10.4'
+    s.ios.dependency 'Branch', '0.12.14'
 end
