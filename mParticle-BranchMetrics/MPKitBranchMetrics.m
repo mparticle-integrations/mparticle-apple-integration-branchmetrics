@@ -17,11 +17,7 @@
 //
 
 #import "MPKitBranchMetrics.h"
-#if defined(COCOAPODS) || defined(MPARTICLE_MANUAL_INSTALL)
-    #import <Branch/Branch.h>
-#else
-    #import <BranchSDK/Branch.h>
-#endif
+#import <Branch/Branch.h>
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     #import <UserNotifications/UserNotifications.h>
