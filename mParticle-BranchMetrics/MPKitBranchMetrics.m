@@ -129,37 +129,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     return execStatus;
 }
 
-- (MPKitExecStatus *)logEvent:(MPEvent *)event {
-    if (event.info.count > 0) {
-        [branchInstance userCompletedAction:event.name withState:event.info];
-    } else {
-        [branchInstance userCompletedAction:event.name];
-    }
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
-}
-
-- (MPKitExecStatus *)logScreen:(MPEvent *)event {
-    MPKitExecStatus *execStatus;
-
-    if (!forwardScreenViews) {
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeUnavailable];
-        return execStatus;
-    }
-
-    NSString *actionName = [NSString stringWithFormat:@"Viewed %@", event.name];
-
-    if (event.info.count > 0) {
-        [branchInstance userCompletedAction:actionName withState:event.info];
-    } else {
-        [branchInstance userCompletedAction:actionName];
-    }
-
-    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
-}
-
 - (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options {
     [branchInstance handleDeepLink:url];
 
