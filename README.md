@@ -14,40 +14,21 @@ Please refer to installation instructions in the core mParticle Apple SDK [READM
 
 ## Deep-linking
 
-When working with deep-linking register to observe the `mParticleKitDidBecomeActiveNotification` notification, and implement the `application:continueUserActivity:restorationHandler:` UIApplicationDelegate method.
-
-Call the mParticle SDK `checkForDeferredDeepLinkWithCompletionHandler:` method to retrieve the respective information.
+Set the property `onDeeplinkComplete:` on `MParticleOptions` when initializing the mParticle SDK. A copy of your block will be invoked to provide the respective information:
 
 ```objective-c
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleKitDidBecomeActive:)
-                                                 name:mParticleKitDidBecomeActiveNotification
-                                               object:nil];
+    MParticleOptions *options = [MParticleOptions optionsWithKey:@"<<Your app key>>" secret:@"<<Your app secret>>"];
+    options.onDeeplinkComplete = ^void (MPDeeplinkContext *_Nonnull context, MPDeeplinkResult *_Nullable deeplinkResult, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Deeplink fetching for kitName=%@ failed with error=%@", context.kitName, error);
+            return;
+        }
 
-    [[MParticle sharedInstance] startWithKey:@"<<Your app key>>"
-                                      secret:@"<<Your app secret>>"];
+        NSLog(@"Deeplink fetching for kitName=%@ completed with linkInfo: %@", context.kitName, deeplinkResult.linkInfo);
 
-    return YES;
-}
-
-- (void)handleKitDidBecomeActive:(NSNotification *)notification {
-    NSDictionary *userInfo = [notification userInfo];
-    NSNumber *kitNumber = userInfo[mParticleKitInstanceKey];
-
-    if ([kitNumber isEqualToNumber:@(MPKitInstanceBranchMetrics)]) {
-        [[MParticle sharedInstance] checkForDeferredDeepLinkWithCompletionHandler:^(NSDictionary * _Nullable params, NSError * _Nullable error) {
-            if (params) {
-                NSLog(@"params: %@", params);
-            }
-        }];
     }
-}
-
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler {
-    [[MParticle sharedInstance] checkForDeferredDeepLinkWithCompletionHandler:^(NSDictionary * _Nullable linkInfo, NSError * _Nullable error) {
-        NSLog(@"linkInfo: %@", linkInfo);
-    }];
+    [[MParticle sharedInstance] startWithOptions:options];
 
     return YES;
 }

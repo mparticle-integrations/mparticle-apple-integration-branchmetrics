@@ -30,14 +30,13 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 @interface MPKitBranchMetrics() {
     Branch *branchInstance;
     BOOL forwardScreenViews;
-    NSDictionary *temporaryParams;
-    NSError *temporaryError;
-    void (^completionHandlerCopy)(NSDictionary *, NSError *);
 }
 
 @end
 
 @implementation MPKitBranchMetrics
+
+@synthesize kitApi = _kitApi;
 
 + (NSNumber *)kitCode {
     return @80;
@@ -62,8 +61,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     _configuration = configuration;
     _started = NO;
-    temporaryParams = nil;
-    temporaryError = nil;
 
     execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
@@ -81,14 +78,12 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
         branchInstance = [Branch getInstance:branchKey];
 
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
-            temporaryParams = [params copy];
-            temporaryError = [error copy];
-
-            if (completionHandlerCopy) {
-                completionHandlerCopy(params, error);
-                temporaryParams = nil;
-                temporaryError = nil;
+            if (error) {
+                [_kitApi onDeeplinkCompleteWithInfo:nil error:error];
+                return;
             }
+            
+            [_kitApi onDeeplinkCompleteWithInfo:params error:nil];
         }];
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -98,14 +93,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
             NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
                                                @"branchKey":branchKey} mutableCopy];
-
-            if (temporaryParams && temporaryParams.count > 0) {
-                userInfo[@"params"] = temporaryParams;
-            }
-
-            if (temporaryError) {
-                userInfo[@"error"] = temporaryError;
-            }
 
             [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
                                                                 object:nil
@@ -207,19 +194,6 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
     [branchInstance setIdentity:identityString];
 
     execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
-}
-
-- (MPKitExecStatus *)checkForDeferredDeepLinkWithCompletionHandler:(void(^)(NSDictionary *linkInfo, NSError *error))completionHandler {
-    if (_started && (temporaryParams || temporaryError)) {
-        completionHandler(temporaryParams, temporaryError);
-        temporaryParams = nil;
-        temporaryError = nil;
-    } else {
-        completionHandlerCopy = [completionHandler copy];
-    }
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
