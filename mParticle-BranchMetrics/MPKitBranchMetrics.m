@@ -79,11 +79,14 @@ NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 
         [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
             if (error) {
-                [_kitApi onDeeplinkCompleteWithInfo:nil error:error];
+                [_kitApi onAttributionCompleteWithResult:nil error:error];
                 return;
             }
             
-            [_kitApi onDeeplinkCompleteWithInfo:params error:nil];
+            MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
+            attributionResult.linkInfo = params;
+
+            [_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
         }];
 
         dispatch_async(dispatch_get_main_queue(), ^{

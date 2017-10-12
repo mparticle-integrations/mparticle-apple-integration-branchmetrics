@@ -14,18 +14,18 @@ Please refer to installation instructions in the core mParticle Apple SDK [READM
 
 ## Deep-linking
 
-Set the property `onDeeplinkComplete:` on `MParticleOptions` when initializing the mParticle SDK. A copy of your block will be invoked to provide the respective information:
+Set the property `onAttributionComplete:` on `MParticleOptions` when initializing the mParticle SDK. A copy of your block will be invoked to provide the respective information:
 
 ```objective-c
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     MParticleOptions *options = [MParticleOptions optionsWithKey:@"<<Your app key>>" secret:@"<<Your app secret>>"];
-    options.onDeeplinkComplete = ^void (MPDeeplinkContext *_Nonnull context, MPDeeplinkResult *_Nullable deeplinkResult, NSError * _Nullable error) {
+    options.onAttributionComplete = ^void (MPAttributionResult *_Nullable attributionResult, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Deeplink fetching for kitName=%@ failed with error=%@", context.kitName, error);
+            NSLog(@"Attribution fetching for kitCode=%@ failed with error=%@", error.userInfo[mParticleKitInstanceKey], error);
             return;
         }
 
-        NSLog(@"Deeplink fetching for kitName=%@ completed with linkInfo: %@", context.kitName, deeplinkResult.linkInfo);
+        NSLog(@"Attribution fetching for kitCode=%@ completed with linkInfo: %@", attributionResult.kitCode, attributionResult.linkInfo);
 
     }
     [[MParticle sharedInstance] startWithOptions:options];
