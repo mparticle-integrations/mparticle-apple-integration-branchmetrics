@@ -1,0 +1,9 @@
+# Uncomment this line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'Branch Example' do
+    use_frameworks!
+    # note that as of 1/22/2018, SDK 7 is not officially released to Cocoapods
+    # pod 'mParticle-BranchMetrics', '~> 7'
+    pod 'mParticle-Apple-SDK', :git => 'https://github.com/mParticle/mparticle-apple-sdk.git', :tag => '7.0.9'
+end
