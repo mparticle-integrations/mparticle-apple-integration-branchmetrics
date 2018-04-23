@@ -18,186 +18,594 @@
 
 #import "MPKitBranchMetrics.h"
 #import <Branch/Branch.h>
-
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-    #import <UserNotifications/UserNotifications.h>
-    #import <UserNotifications/UNUserNotificationCenter.h>
+#import <UserNotifications/UserNotifications.h>
+#import <UserNotifications/UNUserNotificationCenter.h>
 #endif
+
+__attribute__((constructor))
+void MPKitBranchMetricsLoadClass(void) {
+    // Empty function to force class to load.
+    // NSLog(@"MPKitBranchMetricsLoadClass().");
+}
+
+@interface MPEvent (Branch)
+- (MPMessageType) messageType;
+@end
 
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
+NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 
-@interface MPKitBranchMetrics() {
-    Branch *branchInstance;
-    BOOL forwardScreenViews;
+#pragma mark - Branch Helper - Move to Branch SDK
+
+NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void);
+NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
+    return @[
+        BNCProductCategoryAnimalSupplies,
+        BNCProductCategoryApparel,
+        BNCProductCategoryArtsEntertainment,
+        BNCProductCategoryBabyToddler,
+        BNCProductCategoryBusinessIndustrial,
+        BNCProductCategoryCamerasOptics,
+        BNCProductCategoryElectronics,
+        BNCProductCategoryFoodBeverageTobacco,
+        BNCProductCategoryFurniture,
+        BNCProductCategoryHardware,
+        BNCProductCategoryHealthBeauty,
+        BNCProductCategoryHomeGarden,
+        BNCProductCategoryLuggageBags,
+        BNCProductCategoryMature,
+        BNCProductCategoryMedia,
+        BNCProductCategoryOfficeSupplies,
+        BNCProductCategoryReligious,
+        BNCProductCategorySoftware,
+        BNCProductCategorySportingGoods,
+        BNCProductCategoryToysGames,
+        BNCProductCategoryVehiclesParts,
+    ];
 }
 
+#pragma mark - MPKitBranchMetrics
+
+@interface MPKitBranchMetrics() {
+    NSArray<NSString*>*_branchEventTypes;
+    NSArray<NSString*>*_branchEventActions;
+    NSSet<NSString*>*_branchCategories;
+}
+
++ (nonnull NSNumber *)kitCode;
+
+- (instancetype _Nonnull) init NS_DESIGNATED_INITIALIZER;
+
+// Version 6 Start:
+- (instancetype _Nonnull)initWithConfiguration:(nonnull NSDictionary *)configuration
+                              startImmediately:(BOOL)startImmediately;
+
+// Version 7 Start:
+- (MPKitExecStatus*_Nonnull)didFinishLaunchingWithConfiguration:(nonnull NSDictionary *)configuration;
+
+- (void)start;
+
+- (MPKitExecStatus*_Nonnull)continueUserActivity:(nonnull NSUserActivity *)userActivity
+    restorationHandler:(void(^ _Nonnull)(NSArray * _Nullable restorableObjects))restorationHandler;
+
+- (MPKitExecStatus*_Nonnull)openURL:(nonnull NSURL *)url
+                            options:(nullable NSDictionary<NSString *, id> *)options;
+
+- (MPKitExecStatus*_Nonnull)openURL:(nonnull NSURL *)url
+                  sourceApplication:(nullable NSString *)sourceApplication
+                         annotation:(nullable id)annotation;
+
+- (MPKitExecStatus*_Nonnull)receivedUserNotification:(nonnull NSDictionary *)userInfo;
+- (MPKitExecStatus*_Nonnull)logCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent;
+- (MPKitExecStatus*_Nonnull)logEvent:(nonnull MPEvent *)event;
+- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value; // EBS
+- (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut;
+
+@property (assign) BOOL forwardScreenViews;
+@property (assign) BOOL enableAppleSearchAds;
+@property (strong, nullable) Branch *branchInstance;
+@property (readwrite) BOOL started;
 @end
 
-@implementation MPKitBranchMetrics
+#pragma mark - MPKitBranchMetrics
 
-@synthesize kitApi = _kitApi;
+@implementation MPKitBranchMetrics
 
 + (NSNumber *)kitCode {
     return @80;
 }
 
 + (void)load {
-    MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"BranchMetrics" className:@"MPKitBranchMetrics"];
+    MPKitRegister *kitRegister =
+        [[MPKitRegister alloc] initWithName:@"BranchMetrics"
+            className:@"MPKitBranchMetrics"];
     [MParticle registerExtension:kitRegister];
 }
 
-#pragma mark MPKitInstanceProtocol methods
-- (MPKitExecStatus *)didFinishLaunchingWithConfiguration:(NSDictionary *)configuration {
-    MPKitExecStatus *execStatus = nil;
+- (MPKitExecStatus*) execStatus:(MPKitReturnCode)returnCode {
+    return [[MPKitExecStatus alloc] initWithSDKCode:self.class.kitCode returnCode:returnCode];
+}
 
+#pragma mark - MPKitInstanceProtocol Methods
+
+- (instancetype _Nonnull) init {
+    self = [super init];
+    self.configuration = @{};
+    self.launchOptions = @{};
+    return self;
+}
+
+- (instancetype _Nonnull)initWithConfiguration:(nonnull NSDictionary *)configuration
+                              startImmediately:(BOOL)startImmediately {
+    self = [self init];
+    [self didFinishLaunchingWithConfiguration:configuration];
+    if (startImmediately) [self start];
+    return self;
+}
+
+- (MPKitExecStatus*_Nonnull)didFinishLaunchingWithConfiguration:(NSDictionary *)configuration {
+    self.configuration = configuration;
     NSString *branchKey = configuration[ekBMAppKey];
     if (!branchKey) {
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeRequirementsNotMet];
-        return execStatus;
+        return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
-
-    branchInstance = nil;
-    forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
-    _configuration = configuration;
-    _started = NO;
-
-    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+    self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
+    self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
 - (id const)providerKitInstance {
-    return [self started] ? branchInstance : nil;
+    return [self started] ? self.branchInstance : nil;
 }
 
 - (void)start {
-    static dispatch_once_t branchMetricsPredicate;
-
+    static dispatch_once_t branchMetricsPredicate = 0;
     dispatch_once(&branchMetricsPredicate, ^{
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
-        branchInstance = [Branch getInstance:branchKey];
-
-        [branchInstance initSessionWithLaunchOptions:self.launchOptions isReferrable:YES andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
+        self.branchInstance = [Branch getInstance:branchKey];
+        if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
+        [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
+            isReferrable:YES
+            andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
             if (error) {
-                [_kitApi onAttributionCompleteWithResult:nil error:error];
+                [self.kitApi onAttributionCompleteWithResult:nil error:error];
                 return;
             }
             
             MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
             attributionResult.linkInfo = params;
 
-            [_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
+            [self->_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
         }];
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (branchInstance) {
-                _started = YES;
+            if (self.branchInstance) {
+                self.started = YES;
             }
 
-            NSMutableDictionary *userInfo = [@{mParticleKitInstanceKey:[[self class] kitCode],
-                                               @"branchKey":branchKey} mutableCopy];
+            NSMutableDictionary *userInfo = [@{
+                mParticleKitInstanceKey: [[self class] kitCode],
+                @"branchKey": branchKey
+            } mutableCopy];
 
-            [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                                object:nil
-                                                              userInfo:userInfo];
+            [[NSNotificationCenter defaultCenter]
+                postNotificationName:mParticleKitDidBecomeActiveNotification
+                object:nil
+                userInfo:userInfo];
         });
     });
 }
 
-- (nonnull MPKitExecStatus *)continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(void(^ _Nonnull)(NSArray * _Nullable restorableObjects))restorationHandler {
-    [branchInstance continueUserActivity:userActivity];
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (void)deinit {
+    BNCLogMethodName(); // EBS
 }
 
-- (MPKitExecStatus *)logout {
-    [branchInstance logout];
+- (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut {
+    [Branch setTrackingDisabled:optOut];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
 
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value {
+    [self.kitApi logError:@"Unrecognized key attibute '%@'.", key]; //  EBS -- Probably don't need this.
+    return [self execStatus:MPKitReturnCodeUnavailable];
+}
+
+- (MPKitExecStatus*_Nonnull)continueUserActivity:(nonnull NSUserActivity *)userActivity
+    restorationHandler:(void(^ _Nonnull)(NSArray * _Nullable restorableObjects))restorationHandler {
+    [self.branchInstance continueUserActivity:userActivity];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
+                        identityType:(MPUserIdentity)identityType {
+    if (identityType != MPUserIdentityCustomerId || identityString.length == 0) {
+        return [self execStatus:MPKitReturnCodeRequirementsNotMet];
+    }
+    [self.branchInstance setIdentity:identityString];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus*_Nonnull)logout {
+    [self.branchInstance logout];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
 - (MPKitExecStatus *)logEvent:(MPEvent *)event {
-    if (event.info.count > 0) {
-        [branchInstance userCompletedAction:event.name withState:event.info];
-    } else {
-        [branchInstance userCompletedAction:event.name];
-    }
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+    [[self branchEventWithEvent:event] logEvent];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)logScreen:(MPEvent *)event {
-    MPKitExecStatus *execStatus;
-
-    if (!forwardScreenViews) {
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeUnavailable];
-        return execStatus;
-    }
-
-    NSString *actionName = [NSString stringWithFormat:@"Viewed %@", event.name];
-
-    if (event.info.count > 0) {
-        [branchInstance userCompletedAction:actionName withState:event.info];
-    } else {
-        [branchInstance userCompletedAction:actionName];
-    }
-
-    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (nonnull MPKitExecStatus *)logCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent {
+    [[self branchEventWithCommerceEvent:commerceEvent] logEvent];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options {
-    [branchInstance handleDeepLink:url];
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (MPKitExecStatus *)logScreen:(MPEvent *)mpEvent {
+    if ((NO) && !self.forwardScreenViews) {  // EBS
+        return [self execStatus:MPKitReturnCodeUnavailable];
+    }
+    [[self branchEventWithStandardEvent:mpEvent] logEvent];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url sourceApplication:(nullable NSString *)sourceApplication annotation:(nullable id)annotation {
-    [branchInstance handleDeepLink:url];
+- (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url
+                             options:(nullable NSDictionary<NSString *, id> *)options {
+    [self.branchInstance handleDeepLink:url];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
 
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url
+                   sourceApplication:(nullable NSString *)sourceApplication
+                          annotation:(nullable id)annotation {
+    [self.branchInstance handleDeepLink:url];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
 - (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
-    [branchInstance handlePushNotification:userInfo];
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+    [self.branchInstance handlePushNotification:userInfo];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification {
-    [branchInstance handlePushNotification:notification.request.content.userInfo];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
 
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center
+                            willPresentNotification:(nonnull UNNotification *)notification {
+    [self.branchInstance handlePushNotification:notification.request.content.userInfo];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
-    [branchInstance handlePushNotification:response.notification.request.content.userInfo];
-
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center
+                     didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
+    [self.branchInstance handlePushNotification:response.notification.request.content.userInfo];
+    return [self execStatus:MPKitReturnCodeSuccess];
 }
+
+#pragma clang diagnostic pop
 #endif
 
-- (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
-    MPKitExecStatus *execStatus;
+#pragma mark - Event Transformation
 
-    if (identityType != MPUserIdentityCustomerId || identityString.length == 0) {
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeRequirementsNotMet];
-        return execStatus;
+#define addStringField(field, name) { \
+    NSString *value = dictionary[@#name]; \
+    if (value) { \
+        if ([value isKindOfClass:NSString.class]) \
+            field = value; \
+        else \
+            field = [value description]; \
+        dictionary[@#name] = nil; \
+    } \
+}
+
+#define addDecimalField(field, name) { \
+    NSString *value = dictionary[@#name]; \
+    if (value) { \
+        if (![value isKindOfClass:NSString.class]) \
+            value = [value description]; \
+        field = [NSDecimalNumber decimalNumberWithString:value]; \
+        dictionary[@#name] = nil; \
+    } \
+}
+
+#define addDoubleField(field, name) { \
+    NSNumber *value = dictionary[@#name]; \
+    if ([value respondsToSelector:@selector(doubleValue)]) { \
+        field = [value doubleValue]; \
+        dictionary[@#name] = nil; \
+    } \
+}
+
+- (NSSet<NSString*>*) branchCategories {
+    @synchronized(self) {
+        if (!_branchCategories) {
+            _branchCategories = [NSSet setWithArray:BNCProductCategoryAllCategories()];
+        }
+    return _branchCategories;
     }
+}
 
-    [branchInstance setIdentity:identityString];
+- (BranchUniversalObject*) branchUniversalObjectFromDictionary:(NSMutableDictionary*)dictionary {
+    NSInteger startCount = dictionary.count;
+    BranchUniversalObject *object = [[BranchUniversalObject alloc] init];
+    
+    addStringField(object.canonicalIdentifier, Id);
+    addStringField(object.title, Name);
+    addStringField(object.contentMetadata.productBrand, Brand);
+    addStringField(object.contentMetadata.productVariant, Variant);
+    NSString *category = dictionary[@"Category"];
+    if ([category isKindOfClass:NSString.class] && category.length) {
+        if ([self.branchCategories containsObject:category])
+            object.contentMetadata.productCategory = category;
+        else
+            object.contentMetadata.customMetadata[@"product_category"] = category;
+        dictionary[@"Category"] = nil;
+    }
+    addDecimalField(object.contentMetadata.price, Item Price);
+    addDoubleField(object.contentMetadata.quantity, Quantity);
 
-    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceBranchMetrics) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
+    return (dictionary.count == startCount) ? nil : object;
+}
+
+- (NSString*) stringFromObject:(id<NSObject>)object {
+    if (object == nil) return nil;
+    if ([object isKindOfClass:NSString.class]) {
+        return (NSString*) object;
+    } else
+    if ([object respondsToSelector:@selector(stringValue)]) {
+        return [(id)object stringValue];
+    }
+    return [object description];
+}
+
+- (NSMutableDictionary*) stringDictionaryFromDictionary:(NSDictionary*)dictionary_ {
+    if (dictionary_ == nil) return nil;
+    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    for(id<NSObject> key in dictionary_.keyEnumerator) {
+        NSString* stringValue = [self stringFromObject:dictionary_[key]];
+        NSString* stringKey = [self stringFromObject:key];
+        if (stringKey) dictionary[stringKey] = stringValue;
+    }
+    return dictionary;
+}
+
+- (NSString*) branchEventNameFromEventType:(MPEventType)eventType {
+    @synchronized (self) {
+        if (!_branchEventTypes) {
+            _branchEventTypes = @[
+                @"UNKNOWN",
+                @"NAVIGATION",                      // MPEventTypeNavigation = 1,
+                @"LOCATION",                        // MPEventTypeLocation = 2,
+                BranchStandardEventSearch,          // MPEventTypeSearch = 3,
+                BranchStandardEventPurchase,        // MPEventTypeTransaction = 4,
+                BranchStandardEventViewItem,        // MPEventTypeUserContent = 5,
+                @"USER_PREFERENCES",                // MPEventTypeUserPreference = 6,
+                @"SOCIAL",                          // MPEventTypeSocial = 7,
+                @"OTHER",                           // MPEventTypeOther = 8,
+                @"MEDIA",                           // 9 used to be MPEventTypeMedia. It has been discontinued
+                BranchStandardEventAddToCart,       // MPEventTypeAddToCart = 10,
+                @"REMOVE_FROM_CART",                // MPEventTypeRemoveFromCart = 11,
+                BranchStandardEventInitiatePurchase,// MPEventTypeCheckout = 12,
+                BranchStandardEventInitiatePurchase,// MPEventTypeCheckoutOption = 13,
+                BranchStandardEventViewItem,        // MPEventTypeClick = 14,
+                BranchStandardEventViewItem,        // MPEventTypeViewDetail = 15,
+                BranchStandardEventPurchase,        // MPEventTypePurchase = 16,
+                @"REFUND",                          // MPEventTypeRefund = 17,
+                @"VIEW_PROMOTION",                  // MPEventTypePromotionView = 18,
+                @"CLICK_PROMOTION",                 // MPEventTypePromotionClick = 19,
+                BranchStandardEventAddToWishlist,   // MPEventTypeAddToWishlist = 20,
+                @"REMOVE_FROM_WISHLIST",            // MPEventTypeRemoveFromWishlist = 21,
+                @"IMPRESSION"                       // MPEventTypeImpression = 22
+            ];
+        }
+    }
+    if (eventType < _branchEventTypes.count) return _branchEventTypes[eventType];
+    return nil;
+}
+
+- (BranchEvent*) branchEventWithEvent:(MPEvent*)mpEvent {
+    if ([mpEvent.name hasPrefix:@"eCommerce"] && [mpEvent.info[@"an"] length] > 0)
+        return [self branchEventWithPromotionEvent:mpEvent];
+    else
+        return [self branchEventWithStandardEvent:mpEvent];
+}
+
+- (BranchEvent*) branchEventWithPromotionEvent:(MPEvent*)mpEvent {
+    NSString *eventName = nil;
+    NSString *actionName = mpEvent.info[@"an"];
+    if ([actionName isEqualToString:@"view"])
+        eventName = @"VIEW_PROMOTION";
+    else
+    if ([actionName isEqualToString:@"click"])
+        eventName = @"CLICK_PROMOTION";
+    else
+    if (actionName.length > 0)
+        eventName = actionName;
+    else
+        eventName = @"PROMOTION";
+    NSArray *productList = mpEvent.info[@"pl"];
+    NSDictionary *product = nil;
+    if ([productList isKindOfClass:NSArray.class] && productList.count > 0)
+        product = productList[0];
+
+    BranchEvent *event = [BranchEvent customEventWithName:eventName];
+    event.eventDescription = mpEvent.name;
+    event.customData = [self stringDictionaryFromDictionary:product];
+    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
+
+    return event;
+}
+
+- (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
+    NSArray *actionNames = @[
+        @"add_to_cart",
+        @"remove_from_cart",
+        @"add_to_wishlist",
+        @"remove_from_wishlist",
+        @"checkout",
+        @"checkout_option",
+        @"click",
+        @"view_detail",
+        @"purchase",
+        @"refund"
+    ];
+    NSString *eventName = nil;
+    if (mpEvent.messageType == MPMessageTypeScreenView) {
+        eventName = BranchStandardEventViewItem;
+    } else
+    if (mpEvent.messageType == MPMessageTypeEvent) {
+        eventName = [self branchEventNameFromEventType:mpEvent.type];
+        if (!eventName.length)
+            eventName = mpEvent.typeName;
+        if (!eventName.length)
+            eventName = [NSString stringWithFormat:@"mParticle event type %ld", (long)mpEvent.type];
+    } else {
+        int i = 0;
+        for (NSString *action in actionNames) {
+            if ([mpEvent.name rangeOfString:action].location != NSNotFound) {
+                eventName = [self branchEventNameFromEventAction:i];
+                break;
+            }
+            ++i;
+        }
+    }
+    if (!eventName) eventName = mpEvent.name;
+    if (!eventName) eventName = @"other_event";
+    BranchEvent *event = [BranchEvent customEventWithName:eventName];
+    event.eventDescription = mpEvent.name;
+    NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
+    BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
+    if (object) [event.contentItems addObject:object];
+
+    addStringField(event.transactionID, Transaction Id);
+    addStringField(event.currency, Currency);
+    addDecimalField(event.revenue, Total Product Amount);
+    addDecimalField(event.shipping, Shipping Amount);
+    addDecimalField(event.tax, Tax Amount);
+    addStringField(event.coupon, Coupon Code);
+    addStringField(event.affiliation, Affiliation);
+    addStringField(event.searchQuery, Search);
+    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
+    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
+    if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
+
+    return event;
+}
+
+- (BranchUniversalObject*) branchUniversalObjectFromProduct:(MPProduct*)product {
+    BranchUniversalObject *buo = [BranchUniversalObject new];
+    buo.contentMetadata.productBrand = product.brand;
+    if (product.category.length) {
+        if ([self.branchCategories containsObject:product.category])
+            buo.contentMetadata.productCategory = product.category;
+        else
+            buo.contentMetadata.customMetadata[@"product_category"] = product.category;
+    }
+    buo.contentMetadata.customMetadata[@"coupon"] = product.couponCode;
+    buo.contentMetadata.productName = product.name;
+    buo.contentMetadata.price = [self decimal:product.price];
+    buo.contentMetadata.sku = product.sku;
+    buo.contentMetadata.productVariant = product.variant;
+    buo.contentMetadata.customMetadata[@"position"] =
+        [NSString stringWithFormat:@"%lu", (unsigned long) product.position];
+    buo.contentMetadata.quantity = [product.quantity doubleValue];
+    [buo.contentMetadata.customMetadata addEntriesFromDictionary:
+        [self stringDictionaryFromDictionary:product.userDefinedAttributes]];
+    return buo;
+}
+
+- (NSDecimalNumber*) decimal:(NSNumber*)number {
+    return [NSDecimalNumber decimalNumberWithDecimal:number.decimalValue];
+}
+
+- (NSString*) branchEventNameFromEventAction:(MPCommerceEventAction)action {
+    /*
+    typedef NS_ENUM(NSUInteger, MPCommerceEventAction) {
+        MPCommerceEventActionAddToCart = 0,
+        MPCommerceEventActionRemoveFromCart,
+        MPCommerceEventActionAddToWishList,
+        MPCommerceEventActionRemoveFromWishlist,
+        MPCommerceEventActionCheckout,
+        MPCommerceEventActionCheckoutOptions,
+        MPCommerceEventActionClick,
+        MPCommerceEventActionViewDetail,
+        MPCommerceEventActionPurchase,
+        MPCommerceEventActionRefund
+    };
+    */
+    @synchronized(self) {
+        if (!_branchEventActions) {
+            _branchEventActions = @[
+                BranchStandardEventAddToCart,
+                @"REMOVE_FROM_CART",
+                BranchStandardEventAddToWishlist,
+                @"REMOVE_FROM_WISHLIST",
+                BranchStandardEventInitiatePurchase,
+                BranchStandardEventInitiatePurchase,
+                BranchStandardEventViewItem,
+                BranchStandardEventViewItem,
+                BranchStandardEventPurchase,
+                @"REFUND",
+            ];
+        }
+    }
+    if (action < _branchEventActions.count) return _branchEventActions[action];
+    return nil;
+}
+
+- (BranchEvent*) branchEventWithCommerceEvent:(MPCommerceEvent*)mpEvent {
+    NSString *eventName = [self branchEventNameFromEventAction:mpEvent.action];
+    if (!eventName)
+        eventName = [self branchEventNameFromEventType:mpEvent.type];
+    if (!eventName)
+        eventName = [NSString stringWithFormat:@"mParticle commerce event %ld", (long) mpEvent.action];
+    BranchEvent *event = [BranchEvent customEventWithName:eventName];
+    event.customData[@"checkout_options"] = mpEvent.checkoutOptions;
+    event.currency = mpEvent.currency;
+    for (NSString* impression in mpEvent.impressions.keyEnumerator) {
+        NSSet *set = mpEvent.impressions[impression];
+        for (MPProduct *product in set) {
+            BranchUniversalObject *obj = [self branchUniversalObjectFromProduct:product];
+            if (obj) {
+                obj.contentMetadata.currency = mpEvent.currency;
+                obj.contentMetadata.customMetadata[@"impression"] = impression;
+                [event.contentItems addObject:obj];
+            }
+        }
+    }
+    for (MPProduct *product in mpEvent.products) {
+        BranchUniversalObject *obj = [self branchUniversalObjectFromProduct:product];
+        if (obj) {
+            obj.contentMetadata.currency = mpEvent.currency;
+            [event.contentItems addObject:obj];
+        }
+    }
+    for (MPPromotion *promo in mpEvent.promotionContainer.promotions) {
+        BranchUniversalObject *obj = [BranchUniversalObject new];
+        obj.canonicalIdentifier = promo.promotionId;
+        obj.title = promo.name;
+        obj.contentMetadata.customMetadata[@"position"] = promo.position;
+        obj.contentMetadata.customMetadata[@"creative"] = promo.creative;
+        [event.contentItems addObject:obj];
+    }
+    event.customData[@"product_list_name"] = mpEvent.productListName;
+    event.customData[@"product_list_source"] = mpEvent.productListSource;
+    event.customData[@"screen_name"] = mpEvent.screenName;
+    event.affiliation = mpEvent.transactionAttributes.affiliation;
+    event.coupon = mpEvent.transactionAttributes.couponCode;
+    event.shipping = [self decimal:mpEvent.transactionAttributes.shipping];
+    event.tax = [self decimal:mpEvent.transactionAttributes.tax];
+    event.revenue = [self decimal:mpEvent.transactionAttributes.revenue];
+    event.transactionID = mpEvent.transactionAttributes.transactionId;
+    NSInteger checkoutStep = mpEvent.checkoutStep;
+    if (checkoutStep >= 0 && checkoutStep < (NSInteger) 0x7fffffff) {
+        event.customData[@"checkout_step"] =
+            [NSString stringWithFormat:@"%ld", (long) mpEvent.checkoutStep];
+    }
+    event.customData[@"non_interactive"] = mpEvent.nonInteractive ? @"true" : @"false";
+    return event;
 }
 
 @end
