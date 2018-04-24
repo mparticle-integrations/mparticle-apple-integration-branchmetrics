@@ -23,7 +23,7 @@
 #import "mParticle.h"
 #endif
 
-extern void MPKitBranchMetricsLoadClass(void) // EBS
+extern void MPKitBranchMetricsLoadClass(void)
     __attribute__((constructor));
 
 @interface MPKitBranchMetrics : NSObject <MPKitProtocol>

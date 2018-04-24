@@ -266,10 +266,10 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     @IBAction func logUserOut(row: AnyObject) {
+        // MParticle.sharedInstance().logout()  <- Old?
         MParticle.sharedInstance().identity.logout { (result, error) in
-            NSLog("Log out") // EBS
+            BNCLog(.debug, "Logged out.")
         }
-        // MParticle.sharedInstance().logout()
     }
 
     // MARK: - Screen Events

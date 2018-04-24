@@ -39,33 +39,6 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 
 #pragma mark - Branch Helper - Move to Branch SDK
 
-NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void);
-NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
-    return @[
-        BNCProductCategoryAnimalSupplies,
-        BNCProductCategoryApparel,
-        BNCProductCategoryArtsEntertainment,
-        BNCProductCategoryBabyToddler,
-        BNCProductCategoryBusinessIndustrial,
-        BNCProductCategoryCamerasOptics,
-        BNCProductCategoryElectronics,
-        BNCProductCategoryFoodBeverageTobacco,
-        BNCProductCategoryFurniture,
-        BNCProductCategoryHardware,
-        BNCProductCategoryHealthBeauty,
-        BNCProductCategoryHomeGarden,
-        BNCProductCategoryLuggageBags,
-        BNCProductCategoryMature,
-        BNCProductCategoryMedia,
-        BNCProductCategoryOfficeSupplies,
-        BNCProductCategoryReligious,
-        BNCProductCategorySoftware,
-        BNCProductCategorySportingGoods,
-        BNCProductCategoryToysGames,
-        BNCProductCategoryVehiclesParts,
-    ];
-}
-
 #pragma mark - MPKitBranchMetrics
 
 @interface MPKitBranchMetrics() {
@@ -100,7 +73,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
 - (MPKitExecStatus*_Nonnull)receivedUserNotification:(nonnull NSDictionary *)userInfo;
 - (MPKitExecStatus*_Nonnull)logCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent;
 - (MPKitExecStatus*_Nonnull)logEvent:(nonnull MPEvent *)event;
-- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value; // EBS
+- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value;
 - (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut;
 
 @property (assign) BOOL forwardScreenViews;
@@ -128,7 +101,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     return [[MPKitExecStatus alloc] initWithSDKCode:self.class.kitCode returnCode:returnCode];
 }
 
-#pragma mark - MPKitInstanceProtocol Methods
+#pragma mark - MPKitInstanceProtocol Lifecycle Methods
 
 - (instancetype _Nonnull) init {
     self = [super init];
@@ -198,8 +171,11 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     });
 }
 
-- (void)deinit {
-    BNCLogMethodName(); // EBS
+#pragma mark - MPKitInstanceProtocol Methods
+
+- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value {
+    [self.kitApi logError:@"Unrecognized key attibute '%@'.", key];
+    return [self execStatus:MPKitReturnCodeUnavailable];
 }
 
 - (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut {
@@ -207,24 +183,14 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value {
-    [self.kitApi logError:@"Unrecognized key attibute '%@'.", key]; //  EBS -- Probably don't need this.
-    return [self execStatus:MPKitReturnCodeUnavailable];
-}
-
-- (MPKitExecStatus*_Nonnull)continueUserActivity:(nonnull NSUserActivity *)userActivity
-    restorationHandler:(void(^ _Nonnull)(NSArray * _Nullable restorableObjects))restorationHandler {
-    [self.branchInstance continueUserActivity:userActivity];
-    return [self execStatus:MPKitReturnCodeSuccess];
-}
-
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
                         identityType:(MPUserIdentity)identityType {
-    if (identityType != MPUserIdentityCustomerId || identityString.length == 0) {
+    if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
+        [self.branchInstance setIdentity:identityString];
+        return [self execStatus:MPKitReturnCodeSuccess];
+    } else {
         return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
-    [self.branchInstance setIdentity:identityString];
-    return [self execStatus:MPKitReturnCodeSuccess];
 }
 
 - (MPKitExecStatus*_Nonnull)logout {
@@ -243,10 +209,18 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
 }
 
 - (MPKitExecStatus *)logScreen:(MPEvent *)mpEvent {
-    if ((NO) && !self.forwardScreenViews) {  // EBS
+    if (!self.forwardScreenViews) {
         return [self execStatus:MPKitReturnCodeUnavailable];
     }
     [[self branchEventWithStandardEvent:mpEvent] logEvent];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+#pragma mark - Deep Linking
+
+- (MPKitExecStatus*_Nonnull)continueUserActivity:(nonnull NSUserActivity *)userActivity
+    restorationHandler:(void(^ _Nonnull)(NSArray * _Nullable restorableObjects))restorationHandler {
+    [self.branchInstance continueUserActivity:userActivity];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -333,6 +307,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     
     addStringField(object.canonicalIdentifier, Id);
     addStringField(object.title, Name);
+    object.contentMetadata.productName = object.title;
     addStringField(object.contentMetadata.productBrand, Brand);
     addStringField(object.contentMetadata.productVariant, Variant);
     NSString *category = dictionary[@"Category"];
@@ -345,6 +320,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     }
     addDecimalField(object.contentMetadata.price, Item Price);
     addDoubleField(object.contentMetadata.quantity, Quantity);
+    addStringField(object.contentMetadata.currency, Currency Code);
 
     return (dictionary.count == startCount) ? nil : object;
 }
@@ -381,7 +357,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
                 BranchStandardEventSearch,          // MPEventTypeSearch = 3,
                 BranchStandardEventPurchase,        // MPEventTypeTransaction = 4,
                 BranchStandardEventViewItem,        // MPEventTypeUserContent = 5,
-                @"USER_PREFERENCES",                // MPEventTypeUserPreference = 6,
+                @"USERPREFERENCE",                  // MPEventTypeUserPreference = 6,
                 @"SOCIAL",                          // MPEventTypeSocial = 7,
                 @"OTHER",                           // MPEventTypeOther = 8,
                 @"MEDIA",                           // 9 used to be MPEventTypeMedia. It has been discontinued
@@ -464,7 +440,8 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     } else {
         int i = 0;
         for (NSString *action in actionNames) {
-            if ([mpEvent.name rangeOfString:action].location != NSNotFound) {
+            NSRange range = [mpEvent.name rangeOfString:action options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch];
+            if (range.location != NSNotFound) {
                 eventName = [self branchEventNameFromEventAction:i];
                 break;
             }
@@ -472,7 +449,7 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
         }
     }
     if (!eventName) eventName = mpEvent.name;
-    if (!eventName) eventName = @"other_event";
+    if (!eventName) eventName = @"OTHER_EVENT";
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
@@ -511,6 +488,12 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     buo.contentMetadata.customMetadata[@"position"] =
         [NSString stringWithFormat:@"%lu", (unsigned long) product.position];
     buo.contentMetadata.quantity = [product.quantity doubleValue];
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if (product.totalAmount > 0.0)
+        buo.contentMetadata.customMetadata[@"amount"] =
+            [NSString stringWithFormat:@"%1.2f", product.totalAmount];
+    #pragma clang diagnostic pop
     [buo.contentMetadata.customMetadata addEntriesFromDictionary:
         [self stringDictionaryFromDictionary:product.userDefinedAttributes]];
     return buo;
@@ -562,8 +545,15 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     if (!eventName)
         eventName = [NSString stringWithFormat:@"mParticle commerce event %ld", (long) mpEvent.action];
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
-    event.customData[@"checkout_options"] = mpEvent.checkoutOptions;
-    event.currency = mpEvent.currency;
+    for (MPProduct *product in mpEvent.products) {
+        BranchUniversalObject *obj = [self branchUniversalObjectFromProduct:product];
+        if (obj) {
+            obj.contentMetadata.currency = mpEvent.currency;
+            obj.contentMetadata.customMetadata[@"product_list_name"] = mpEvent.productListName;
+            obj.contentMetadata.customMetadata[@"product_list_source"] = mpEvent.productListSource;
+            [event.contentItems addObject:obj];
+        }
+    }
     for (NSString* impression in mpEvent.impressions.keyEnumerator) {
         NSSet *set = mpEvent.impressions[impression];
         for (MPProduct *product in set) {
@@ -573,13 +563,6 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
                 obj.contentMetadata.customMetadata[@"impression"] = impression;
                 [event.contentItems addObject:obj];
             }
-        }
-    }
-    for (MPProduct *product in mpEvent.products) {
-        BranchUniversalObject *obj = [self branchUniversalObjectFromProduct:product];
-        if (obj) {
-            obj.contentMetadata.currency = mpEvent.currency;
-            [event.contentItems addObject:obj];
         }
     }
     for (MPPromotion *promo in mpEvent.promotionContainer.promotions) {
@@ -593,6 +576,8 @@ NSArray<BNCProductCategory>* BNCProductCategoryAllCategories(void) {
     event.customData[@"product_list_name"] = mpEvent.productListName;
     event.customData[@"product_list_source"] = mpEvent.productListSource;
     event.customData[@"screen_name"] = mpEvent.screenName;
+    event.customData[@"checkout_options"] = mpEvent.checkoutOptions;
+    event.currency = mpEvent.currency;
     event.affiliation = mpEvent.transactionAttributes.affiliation;
     event.coupon = mpEvent.transactionAttributes.couponCode;
     event.shipping = [self decimal:mpEvent.transactionAttributes.shipping];
