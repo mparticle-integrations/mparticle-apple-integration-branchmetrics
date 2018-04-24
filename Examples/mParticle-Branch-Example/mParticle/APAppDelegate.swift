@@ -33,8 +33,8 @@ class APAppDelegate: UIResponder, UIApplicationDelegate {
         let mParticle = MParticle.sharedInstance()
         mParticle.logLevel = .debug
         let options = MParticleOptions.init(
-            key: "fe8104a87f1fdf4d928f69c7d5dcb9bd",
-            secret: "x2JpLm6QXAxCMpjxRpiDHyb4-biuW7Ddl6cdwIKct1YYvNtjeSLyJRnXFDcxyPUN"
+            key: "REPLACE WITH YOUR KEY",
+            secret: "REPLACE WITH YOUR SECRET"
         )
         let request = MPIdentityApiRequest.withEmptyUser()
         request.email = "foo@example.com"
