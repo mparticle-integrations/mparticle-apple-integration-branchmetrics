@@ -28,10 +28,6 @@ extern void MPKitBranchMetricsLoadClass(void)
 
 @interface MPKitBranchMetrics : NSObject <MPKitProtocol>
 
-// mParticle version 6 start:
-- (instancetype _Nonnull)initWithConfiguration:(NSDictionary*_Nonnull)configuration
-                             startImmediately:(BOOL)startImmediately;
-
 // mParticle version 7 start:
 - (MPKitExecStatus *)didFinishLaunchingWithConfiguration:(NSDictionary*_Nonnull)configuration;
 

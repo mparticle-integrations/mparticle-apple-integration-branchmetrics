@@ -94,8 +94,8 @@ class  APTableData  {
         var rowIndex = 0
         var sectionIndex = 0
         for sections in self.rows {
-            for row in sections {
-                if row === row {
+            for sectionRow in sections {
+                if sectionRow === row {
                     return IndexPath.init(row: rowIndex, section:sectionIndex)
                 }
                 rowIndex += 1

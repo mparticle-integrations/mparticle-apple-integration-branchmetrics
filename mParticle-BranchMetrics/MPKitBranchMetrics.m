@@ -25,7 +25,7 @@
 
 __attribute__((constructor))
 void MPKitBranchMetricsLoadClass(void) {
-    // Empty function to force class to load.
+    // Empty function to force the class to load.
     // NSLog(@"MPKitBranchMetricsLoadClass().");
 }
 
@@ -36,8 +36,6 @@ void MPKitBranchMetricsLoadClass(void) {
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
-
-#pragma mark - Branch Helper - Move to Branch SDK
 
 #pragma mark - MPKitBranchMetrics
 
@@ -50,10 +48,6 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 + (nonnull NSNumber *)kitCode;
 
 - (instancetype _Nonnull) init NS_DESIGNATED_INITIALIZER;
-
-// Version 6 Start:
-- (instancetype _Nonnull)initWithConfiguration:(nonnull NSDictionary *)configuration
-                              startImmediately:(BOOL)startImmediately;
 
 // Version 7 Start:
 - (MPKitExecStatus*_Nonnull)didFinishLaunchingWithConfiguration:(nonnull NSDictionary *)configuration;
@@ -110,14 +104,6 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     return self;
 }
 
-- (instancetype _Nonnull)initWithConfiguration:(nonnull NSDictionary *)configuration
-                              startImmediately:(BOOL)startImmediately {
-    self = [self init];
-    [self didFinishLaunchingWithConfiguration:configuration];
-    if (startImmediately) [self start];
-    return self;
-}
-
 - (MPKitExecStatus*_Nonnull)didFinishLaunchingWithConfiguration:(NSDictionary *)configuration {
     self.configuration = configuration;
     NSString *branchKey = configuration[ekBMAppKey];
@@ -142,14 +128,12 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
             andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
+            MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
             if (error) {
-                [self.kitApi onAttributionCompleteWithResult:nil error:error];
+                [self.kitApi onAttributionCompleteWithResult:attributionResult error:error];
                 return;
             }
-            
-            MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
             attributionResult.linkInfo = params;
-
             [self->_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
         }];
 

@@ -21,6 +21,7 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
     private
     var keyboardEditor: APKeyboardEditor?
     var tableData: APTableData = APTableData.init()
+    var branchLink: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +49,18 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.tableData.addRow(title: "Set User Identity", style: .plain, selector:#selector(setIdentity(row:)))
         self.tableData.addRow(title: "Set User Alias", style: .plain, selector:#selector(startSetIdentityAlias(row:)))
         self.tableData.addRow(title: "Log User Out", style: .plain, selector:#selector(logUserOut(row:)))
+
+        self.tableData.addSection(title: "Branch Links")
+        self.tableData.addRow(title: "Create Branch Link", style: .plain, selector:#selector(createBranchLink(row:)))
+        self.tableData.addRow(title: "Open Branch Link", style: .plain) { (row) in
+            if let link = self.branchLink,
+               let url = URL.init(string: link) {
+                Branch.getInstance().resetUserSession()
+                UIApplication.shared.openURL(url)
+            } else {
+                self.showAlert(title: "No Branch Link", message: "Create a Branch link first!")
+            }
+        }
 
         self.tableData.addSection(title: "View Events")
         self.tableData.addRow(title: "View Screen - Simple", style: .plain, selector:#selector(logScreenSimple(row:)))
@@ -269,6 +282,37 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
         // MParticle.sharedInstance().logout()  <- Old?
         MParticle.sharedInstance().identity.logout { (result, error) in
             BNCLog(.debug, "Logged out.")
+        }
+    }
+
+    // MARK: - Deep Links
+
+    @IBAction func createBranchLink(row: AnyObject?) {
+        let message = APAppData.shared.randomFortune()
+
+        // Add some content to the Branch object:
+        let buo = BranchUniversalObject.init()
+        buo.title = "Branch Example"
+        buo.contentDescription = "A mysterious fortune."
+        buo.contentMetadata.customMetadata["message"] = message
+        buo.contentMetadata.customMetadata["name"] = UIDevice.current.name
+
+        // Set some link properties:
+        let linkProperties = BranchLinkProperties.init()
+        linkProperties.channel = "Fortune"
+
+        // Get the link:
+        buo.getShortUrl(with: linkProperties) { (urlString: String?, error: Error?) in
+            if let urlString = urlString {
+                APAppData.shared.linksCreated += 1
+                self.branchLink = urlString
+                if let row = row as! APTableRow? {
+                    row.stringValue = urlString
+                    self.tableData.update(tableView: self.tableView, row: row)
+                }
+                return
+            }
+            self.showAlert(title: "Error", message: String(describing: error))
         }
     }
 

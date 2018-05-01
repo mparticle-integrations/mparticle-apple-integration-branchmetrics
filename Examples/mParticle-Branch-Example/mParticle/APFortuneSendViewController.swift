@@ -70,7 +70,7 @@ class APFortuneSendViewController:
 
     func updateUI() {
         guard let messageLabel = self.messageLabel else { return }
-        linkTextView.text = branchURL?.absoluteString ?? ""
+        linkTextView.text = self.branchURL?.absoluteString ?? ""
         imageView.image = qrImage
         message = message ?? ""
         if let message = message {
