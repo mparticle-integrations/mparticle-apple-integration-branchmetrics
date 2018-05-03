@@ -24,6 +24,4 @@ FOUNDATION_EXPORT double mParticle_BranchMetricsVersionNumber;
 //! Project version string for mParticle-BranchMetrics.
 FOUNDATION_EXPORT const unsigned char mParticle_BranchMetricsVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <mParticle_BranchMetrics/PublicHeader.h>
-
 #import <mParticle_BranchMetrics/MPKitBranchMetrics.h>

@@ -23,10 +23,17 @@
 #import "mParticle.h"
 #endif
 
+extern void MPKitBranchMetricsLoadClass(void)
+    __attribute__((constructor));
+
 @interface MPKitBranchMetrics : NSObject <MPKitProtocol>
 
-@property (nonatomic, strong, nonnull) NSDictionary *configuration;
-@property (nonatomic, strong, nullable) NSDictionary *launchOptions;
-@property (nonatomic, unsafe_unretained, readonly) BOOL started;
+// mParticle version 7 start:
+- (MPKitExecStatus *)didFinishLaunchingWithConfiguration:(NSDictionary*_Nonnull)configuration;
 
+@property (nonatomic, strong, nonnull) NSDictionary *configuration;
+@property (nonatomic, strong, nonnull) NSDictionary *launchOptions;
+@property (nonatomic, unsafe_unretained, readonly) BOOL started;
+@property (nonatomic, strong, nullable, readonly) id providerKitInstance;
+@property (nonatomic, strong, nullable) MPKitAPI *kitApi;
 @end
