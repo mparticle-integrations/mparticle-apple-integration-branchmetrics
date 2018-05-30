@@ -36,7 +36,6 @@ void MPKitBranchMetricsLoadClass(void) {
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
-NSString *const ekBMAAppleSearchAdsDebugMode = @"appleSearchAdsDebugMode";
 
 #pragma mark - MPKitBranchMetrics
 
@@ -73,7 +72,6 @@ NSString *const ekBMAAppleSearchAdsDebugMode = @"appleSearchAdsDebugMode";
 
 @property (assign) BOOL forwardScreenViews;
 @property (assign) BOOL enableAppleSearchAds;
-@property (assign) BOOL appleSearchAdsDebugMode;
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
 @end
@@ -91,6 +89,16 @@ NSString *const ekBMAAppleSearchAdsDebugMode = @"appleSearchAdsDebugMode";
         [[MPKitRegister alloc] initWithName:@"BranchMetrics"
             className:@"MPKitBranchMetrics"];
     [MParticle registerExtension:kitRegister];
+}
+
+static BOOL _appleSearchAdsDebugMode;
+
++ (void) setAppleSearchAdsDebugMode:(BOOL)appleSearchAdsDebugMode_ {
+    _appleSearchAdsDebugMode = appleSearchAdsDebugMode_;
+}
+
++ (BOOL) appleSearchAdsDebugMode {
+    return _appleSearchAdsDebugMode;
 }
 
 - (MPKitExecStatus*) execStatus:(MPKitReturnCode)returnCode {
@@ -114,7 +122,6 @@ NSString *const ekBMAAppleSearchAdsDebugMode = @"appleSearchAdsDebugMode";
     }
     self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
-    self.appleSearchAdsDebugMode = [configuration[ekBMAAppleSearchAdsDebugMode] boolValue];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -128,7 +135,7 @@ NSString *const ekBMAAppleSearchAdsDebugMode = @"appleSearchAdsDebugMode";
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
-        if (self.appleSearchAdsDebugMode) [self.branchInstance setAppleSearchAdsDebugMode];
+        if (self.class.appleSearchAdsDebugMode) [self.branchInstance setAppleSearchAdsDebugMode];
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
             andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
