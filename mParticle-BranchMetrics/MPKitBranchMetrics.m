@@ -91,6 +91,16 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     [MParticle registerExtension:kitRegister];
 }
 
+static BOOL _appleSearchAdsDebugMode;
+
++ (void) setAppleSearchAdsDebugMode:(BOOL)appleSearchAdsDebugMode_ {
+    _appleSearchAdsDebugMode = appleSearchAdsDebugMode_;
+}
+
++ (BOOL) appleSearchAdsDebugMode {
+    return _appleSearchAdsDebugMode;
+}
+
 - (MPKitExecStatus*) execStatus:(MPKitReturnCode)returnCode {
     return [[MPKitExecStatus alloc] initWithSDKCode:self.class.kitCode returnCode:returnCode];
 }
@@ -125,6 +135,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
+        if (self.class.appleSearchAdsDebugMode) [self.branchInstance setAppleSearchAdsDebugMode];
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
             andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
