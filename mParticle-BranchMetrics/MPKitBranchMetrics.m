@@ -148,6 +148,10 @@ static BOOL _appleSearchAdsDebugMode;
             [self->_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
         }];
 
+        // mParticle isn't calling back with the URL on startup fast enough or in the right order, so handle it here:
+        NSURL*URL = self.launchOptions[UIApplicationLaunchOptionsURLKey];
+        if (URL) [self.branchInstance handleDeepLinkWithNewSession:URL];
+
         dispatch_async(dispatch_get_main_queue(), ^{
             if (self.branchInstance) {
                 self.started = YES;
