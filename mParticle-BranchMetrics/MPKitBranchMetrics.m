@@ -342,40 +342,6 @@ static BOOL _appleSearchAdsDebugMode;
     return dictionary;
 }
 
-- (NSString*) branchEventNameFromEventType:(MPEventType)eventType {
-    @synchronized (self) {
-        if (!_branchEventTypes) {
-            _branchEventTypes = @[
-                @"UNKNOWN",
-                @"NAVIGATION",                      // MPEventTypeNavigation = 1,
-                @"LOCATION",                        // MPEventTypeLocation = 2,
-                BranchStandardEventSearch,          // MPEventTypeSearch = 3,
-                BranchStandardEventPurchase,        // MPEventTypeTransaction = 4,
-                BranchStandardEventViewItem,        // MPEventTypeUserContent = 5,
-                @"USERPREFERENCE",                  // MPEventTypeUserPreference = 6,
-                @"SOCIAL",                          // MPEventTypeSocial = 7,
-                @"OTHER",                           // MPEventTypeOther = 8,
-                @"MEDIA",                           // 9 used to be MPEventTypeMedia. It has been discontinued
-                BranchStandardEventAddToCart,       // MPEventTypeAddToCart = 10,
-                @"REMOVE_FROM_CART",                // MPEventTypeRemoveFromCart = 11,
-                BranchStandardEventInitiatePurchase,// MPEventTypeCheckout = 12,
-                BranchStandardEventInitiatePurchase,// MPEventTypeCheckoutOption = 13,
-                BranchStandardEventViewItem,        // MPEventTypeClick = 14,
-                BranchStandardEventViewItem,        // MPEventTypeViewDetail = 15,
-                BranchStandardEventPurchase,        // MPEventTypePurchase = 16,
-                @"REFUND",                          // MPEventTypeRefund = 17,
-                @"VIEW_PROMOTION",                  // MPEventTypePromotionView = 18,
-                @"CLICK_PROMOTION",                 // MPEventTypePromotionClick = 19,
-                BranchStandardEventAddToWishlist,   // MPEventTypeAddToWishlist = 20,
-                @"REMOVE_FROM_WISHLIST",            // MPEventTypeRemoveFromWishlist = 21,
-                @"IMPRESSION"                       // MPEventTypeImpression = 22
-            ];
-        }
-    }
-    if (eventType < _branchEventTypes.count) return _branchEventTypes[eventType];
-    return nil;
-}
-
 - (BranchEvent*) branchEventWithEvent:(MPEvent*)mpEvent {
     if ([mpEvent.name hasPrefix:@"eCommerce"] && [mpEvent.info[@"an"] length] > 0)
         return [self branchEventWithPromotionEvent:mpEvent];
@@ -427,7 +393,7 @@ static BOOL _appleSearchAdsDebugMode;
         eventName = BranchStandardEventViewItem;
     } else
     if (mpEvent.messageType == MPMessageTypeEvent) {
-        eventName = [self branchEventNameFromEventType:mpEvent.type];
+        eventName = mpEvent.name;
         if (!eventName.length)
             eventName = mpEvent.typeName;
         if (!eventName.length)
@@ -535,8 +501,6 @@ static BOOL _appleSearchAdsDebugMode;
 
 - (BranchEvent*) branchEventWithCommerceEvent:(MPCommerceEvent*)mpEvent {
     NSString *eventName = [self branchEventNameFromEventAction:mpEvent.action];
-    if (!eventName)
-        eventName = [self branchEventNameFromEventType:mpEvent.type];
     if (!eventName)
         eventName = [NSString stringWithFormat:@"mParticle commerce event %ld", (long) mpEvent.action];
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
