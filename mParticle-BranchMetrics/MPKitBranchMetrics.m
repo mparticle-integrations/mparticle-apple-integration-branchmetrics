@@ -405,41 +405,11 @@ static BOOL _appleSearchAdsDebugMode;
 }
 
 - (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
-    NSArray *actionNames = @[
-        @"add_to_cart",
-        @"remove_from_cart",
-        @"add_to_wishlist",
-        @"remove_from_wishlist",
-        @"checkout",
-        @"checkout_option",
-        @"click",
-        @"view_detail",
-        @"purchase",
-        @"refund"
-    ];
-    NSString *eventName = nil;
-    if (mpEvent.messageType == MPMessageTypeScreenView) {
-        eventName = BranchStandardEventViewItem;
-    } else
-    if (mpEvent.messageType == MPMessageTypeEvent) {
-        if (!eventName) eventName = [self branchEventNameFromEventType:mpEvent.type];
-        if (!eventName && [mpEvent.name isEqualToString:@"Purchase Event"])
-            eventName = BranchStandardEventPurchase;
-    } else {
-        int i = 0;
-        for (NSString *action in actionNames) {
-            NSRange range =
-                [mpEvent.name rangeOfString:action
-                    options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch];
-            if (range.location != NSNotFound) {
-                eventName = [self branchEventNameFromEventAction:i];
-                break;
-            }
-            ++i;
-        }
-    }
-    if (!eventName) eventName = mpEvent.name;
-    if (!eventName) eventName = @"OTHER_EVENT";
+    NSString *eventName = mpEvent.name;
+    if ([eventName isEqualToString:@"Purchase Event"]) eventName = BranchStandardEventPurchase;
+    if (!eventName.length) eventName = [self branchEventNameFromEventType:mpEvent.type];
+    if (!eventName.length) eventName = @"OTHER_EVENT";
+
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
