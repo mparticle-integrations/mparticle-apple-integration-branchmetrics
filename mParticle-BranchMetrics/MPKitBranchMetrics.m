@@ -197,8 +197,8 @@ static BOOL _appleSearchAdsDebugMode;
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)logEvent:(MPEvent *)event {
-    [[self branchEventWithEvent:event] logEvent];
+- (MPKitExecStatus *)logEvent:(MPEvent *)mpEvent {
+    [[self branchEventWithStandardEvent:mpEvent] logEvent];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -371,44 +371,9 @@ static BOOL _appleSearchAdsDebugMode;
     return _branchEventTypes[index];
 }
 
-- (BranchEvent*) branchEventWithEvent:(MPEvent*)mpEvent {
-    if ([mpEvent.name hasPrefix:@"eCommerce"] && [mpEvent.info[@"an"] length] > 0)
-        return [self branchEventWithPromotionEvent:mpEvent];
-    else
-        return [self branchEventWithStandardEvent:mpEvent];
-}
-
-- (BranchEvent*) branchEventWithPromotionEvent:(MPEvent*)mpEvent {
-    NSString *eventName = nil;
-    NSString *actionName = mpEvent.info[@"an"];
-    if ([actionName isEqualToString:@"view"])
-        eventName = @"VIEW_PROMOTION";
-    else
-    if ([actionName isEqualToString:@"click"])
-        eventName = @"CLICK_PROMOTION";
-    else
-    if (actionName.length > 0)
-        eventName = actionName;
-    else
-        eventName = @"PROMOTION";
-    NSArray *productList = mpEvent.info[@"pl"];
-    NSDictionary *product = nil;
-    if ([productList isKindOfClass:NSArray.class] && productList.count > 0)
-        product = productList[0];
-
-    BranchEvent *event = [BranchEvent customEventWithName:eventName];
-    event.eventDescription = mpEvent.name;
-    event.customData = [self stringDictionaryFromDictionary:product];
-    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
-
-    return event;
-}
-
 - (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
     NSString *eventName = mpEvent.name;
-    if ([eventName isEqualToString:@"Purchase Event"]) eventName = BranchStandardEventPurchase;
-    if (!eventName.length) eventName = [self branchEventNameFromEventType:mpEvent.type];
-    if (!eventName.length) eventName = @"OTHER_EVENT";
+    if (eventName.length == 0) return nil;
 
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
