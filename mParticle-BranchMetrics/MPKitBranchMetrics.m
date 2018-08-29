@@ -197,8 +197,8 @@ static BOOL _appleSearchAdsDebugMode;
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)logEvent:(MPEvent *)event {
-    [[self branchEventWithEvent:event] logEvent];
+- (MPKitExecStatus *)logEvent:(MPEvent *)mpEvent {
+    [[self branchEventWithStandardEvent:mpEvent] logEvent];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -350,21 +350,11 @@ static BOOL _appleSearchAdsDebugMode;
     @synchronized (self) {
         if (!_branchEventTypes) {
             _branchEventTypes = @[
-                @"UNKNOWN",
-                @"NAVIGATION",                      // MPEventTypeNavigation = 1,
-                @"LOCATION",                        // MPEventTypeLocation = 2,
-                BranchStandardEventSearch,          // MPEventTypeSearch = 3,
-                BranchStandardEventPurchase,        // MPEventTypeTransaction = 4,
-                BranchStandardEventViewItem,        // MPEventTypeUserContent = 5,
-                @"USERPREFERENCE",                  // MPEventTypeUserPreference = 6,
-                @"SOCIAL",                          // MPEventTypeSocial = 7,
-                @"OTHER",                           // MPEventTypeOther = 8,
-                @"MEDIA",                           // 9 used to be MPEventTypeMedia. It has been discontinued
                 BranchStandardEventAddToCart,       // MPEventTypeAddToCart = 10,
                 @"REMOVE_FROM_CART",                // MPEventTypeRemoveFromCart = 11,
                 BranchStandardEventInitiatePurchase,// MPEventTypeCheckout = 12,
-                BranchStandardEventInitiatePurchase,// MPEventTypeCheckoutOption = 13,
-                BranchStandardEventViewItem,        // MPEventTypeClick = 14,
+                @"PURCHASE_OPTION",                 // MPEventTypeCheckoutOption = 13,
+                @"CLICK_ITEM",                      // MPEventTypeClick = 14,
                 BranchStandardEventViewItem,        // MPEventTypeViewDetail = 15,
                 BranchStandardEventPurchase,        // MPEventTypePurchase = 16,
                 @"REFUND",                          // MPEventTypeRefund = 17,
@@ -376,94 +366,21 @@ static BOOL _appleSearchAdsDebugMode;
             ];
         }
     }
-    if (eventType < _branchEventTypes.count) return _branchEventTypes[eventType];
-    return nil;
-}
-
-- (BranchEvent*) branchEventWithEvent:(MPEvent*)mpEvent {
-    if ([mpEvent.name hasPrefix:@"eCommerce"] && [mpEvent.info[@"an"] length] > 0)
-        return [self branchEventWithPromotionEvent:mpEvent];
-    else
-        return [self branchEventWithStandardEvent:mpEvent];
-}
-
-- (BranchEvent*) branchEventWithPromotionEvent:(MPEvent*)mpEvent {
-    NSString *eventName = nil;
-    NSString *actionName = mpEvent.info[@"an"];
-    if ([actionName isEqualToString:@"view"])
-        eventName = @"VIEW_PROMOTION";
-    else
-    if ([actionName isEqualToString:@"click"])
-        eventName = @"CLICK_PROMOTION";
-    else
-    if (actionName.length > 0)
-        eventName = actionName;
-    else
-        eventName = @"PROMOTION";
-    NSArray *productList = mpEvent.info[@"pl"];
-    NSDictionary *product = nil;
-    if ([productList isKindOfClass:NSArray.class] && productList.count > 0)
-        product = productList[0];
-
-    BranchEvent *event = [BranchEvent customEventWithName:eventName];
-    event.eventDescription = mpEvent.name;
-    event.customData = [self stringDictionaryFromDictionary:product];
-    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
-
-    return event;
+    NSInteger index = (NSInteger) eventType - (NSInteger) MPEventTypeAddToCart;
+    if (index < 0 || index >= _branchEventTypes.count) return nil;
+    return _branchEventTypes[index];
 }
 
 - (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
-    NSArray *actionNames = @[
-        @"add_to_cart",
-        @"remove_from_cart",
-        @"add_to_wishlist",
-        @"remove_from_wishlist",
-        @"checkout",
-        @"checkout_option",
-        @"click",
-        @"view_detail",
-        @"purchase",
-        @"refund"
-    ];
-    NSString *eventName = nil;
-    if (mpEvent.messageType == MPMessageTypeScreenView) {
-        eventName = BranchStandardEventViewItem;
-    } else
-    if (mpEvent.messageType == MPMessageTypeEvent) {
-        eventName = [self branchEventNameFromEventType:mpEvent.type];
-        if (!eventName.length)
-            eventName = mpEvent.typeName;
-        if (!eventName.length)
-            eventName = [NSString stringWithFormat:@"mParticle event type %ld", (long)mpEvent.type];
-    } else {
-        int i = 0;
-        for (NSString *action in actionNames) {
-            NSRange range = [mpEvent.name rangeOfString:action options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch];
-            if (range.location != NSNotFound) {
-                eventName = [self branchEventNameFromEventAction:i];
-                break;
-            }
-            ++i;
-        }
-    }
-    if (!eventName) eventName = mpEvent.name;
-    if (!eventName) eventName = @"OTHER_EVENT";
+    NSString *eventName = mpEvent.name;
+    if (eventName.length == 0) return nil;
+
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
     if (object) [event.contentItems addObject:object];
 
-    addStringField(event.transactionID, Transaction Id);
-    addStringField(event.currency, Currency);
-    addDecimalField(event.revenue, Total Product Amount);
-    addDecimalField(event.shipping, Shipping Amount);
-    addDecimalField(event.tax, Tax Amount);
-    addStringField(event.coupon, Coupon Code);
-    addStringField(event.affiliation, Affiliation);
-    addStringField(event.searchQuery, Search);
-    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
     [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
     if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
 
@@ -525,8 +442,8 @@ static BOOL _appleSearchAdsDebugMode;
                 BranchStandardEventAddToWishlist,
                 @"REMOVE_FROM_WISHLIST",
                 BranchStandardEventInitiatePurchase,
-                BranchStandardEventInitiatePurchase,
-                BranchStandardEventViewItem,
+                @"PURCHASE_OPTION",
+                @"CLICK_ITEM",
                 BranchStandardEventViewItem,
                 BranchStandardEventPurchase,
                 @"REFUND",
@@ -539,10 +456,8 @@ static BOOL _appleSearchAdsDebugMode;
 
 - (BranchEvent*) branchEventWithCommerceEvent:(MPCommerceEvent*)mpEvent {
     NSString *eventName = [self branchEventNameFromEventAction:mpEvent.action];
-    if (!eventName)
-        eventName = [self branchEventNameFromEventType:mpEvent.type];
-    if (!eventName)
-        eventName = [NSString stringWithFormat:@"mParticle commerce event %ld", (long) mpEvent.action];
+    if (!eventName) eventName = [self branchEventNameFromEventType:mpEvent.type];
+    if (!eventName) eventName = @"OTHER";
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     for (MPProduct *product in mpEvent.products) {
         BranchUniversalObject *obj = [self branchUniversalObjectFromProduct:product];
