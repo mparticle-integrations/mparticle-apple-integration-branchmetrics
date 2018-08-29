@@ -381,15 +381,6 @@ static BOOL _appleSearchAdsDebugMode;
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
     if (object) [event.contentItems addObject:object];
 
-    addStringField(event.transactionID, Transaction Id);
-    addStringField(event.currency, Currency);
-    addDecimalField(event.revenue, Total Product Amount);
-    addDecimalField(event.shipping, Shipping Amount);
-    addDecimalField(event.tax, Tax Amount);
-    addStringField(event.coupon, Coupon Code);
-    addStringField(event.affiliation, Affiliation);
-    addStringField(event.searchQuery, Search);
-    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customFlags]];
     [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
     if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
 
