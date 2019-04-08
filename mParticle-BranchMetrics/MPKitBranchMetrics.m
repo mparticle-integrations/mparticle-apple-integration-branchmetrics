@@ -173,7 +173,8 @@ static BOOL _appleSearchAdsDebugMode;
 #pragma mark - MPKitInstanceProtocol Methods
 
 - (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value {
-    [self.kitApi logError:@"Unrecognized key attibute '%@'.", key];
+    NSLog(@"mParticle -> Branch Kit: Unrecognized key attribute '%@'.", key);
+    
     return [self execStatus:MPKitReturnCodeUnavailable];
 }
 
