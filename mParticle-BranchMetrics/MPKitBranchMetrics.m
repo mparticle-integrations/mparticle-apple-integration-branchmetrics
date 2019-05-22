@@ -133,12 +133,12 @@ static BOOL _appleSearchAdsDebugMode;
         // mParticle isn't calling back with the URL on startup fast enough or in the right order, so handle it here:
         NSURL*URL = self.launchOptions[UIApplicationLaunchOptionsURLKey];
         if (URL) [self.branchInstance handleDeepLinkWithNewSession:URL];
-
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             if (self.branchInstance) {
                 self.started = YES;
             }
-
+            
             NSMutableDictionary *userInfo = [@{
                 mParticleKitInstanceKey: [[self class] kitCode],
                 @"branchKey": branchKey
@@ -279,7 +279,7 @@ static BOOL _appleSearchAdsDebugMode;
         if (!_branchCategories) {
             _branchCategories = [NSSet setWithArray:BNCProductCategoryAllCategories()];
         }
-    return _branchCategories;
+        return _branchCategories;
     }
 }
 
@@ -303,7 +303,7 @@ static BOOL _appleSearchAdsDebugMode;
     addDecimalField(object.contentMetadata.price, Item Price);
     addDoubleField(object.contentMetadata.quantity, Quantity);
     addStringField(object.contentMetadata.currency, Currency Code);
-
+    
     return (dictionary.count == startCount) ? nil : object;
 }
 
@@ -357,16 +357,16 @@ static BOOL _appleSearchAdsDebugMode;
 - (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
     NSString *eventName = mpEvent.name;
     if (eventName.length == 0) return nil;
-
+    
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
     if (object) [event.contentItems addObject:object];
-
+    
     [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
     if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
-
+    
     return event;
 }
 
