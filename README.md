@@ -13,7 +13,7 @@ This repository contains the [Branch](https://branch.io) integration for the [mP
     OR
 
     ```
-    github 'mparticle-integrations/mparticle-apple-integration-branchmetrics' ~> 7.0
+    github "mparticle-integrations/mparticle-apple-integration-branchmetrics" ~> 7.0
     ```
 
 2. Follow the mParticle iOS SDK [quick-start](https://github.com/mParticle/mparticle-apple-sdk), then rebuild and launch your app, and verify that you see `"Included kits: { BranchMetrics }"` in your Xcode console 
