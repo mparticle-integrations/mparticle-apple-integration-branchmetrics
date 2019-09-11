@@ -18,5 +18,4 @@ extern void MPKitBranchMetricsLoadClass(void)
 @property (nonatomic, unsafe_unretained, readonly) BOOL started;
 @property (nonatomic, strong, nullable, readonly) id providerKitInstance;
 @property (nonatomic, strong, nullable) MPKitAPI *kitApi;
-@property (nonatomic, class, assign) BOOL appleSearchAdsDebugMode;
 @end
