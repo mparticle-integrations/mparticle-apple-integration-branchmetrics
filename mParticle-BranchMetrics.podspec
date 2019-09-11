@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-BranchMetrics"
-    s.version          = "7.9.1"
+    s.version          = "7.10.5"
     s.summary          = "BranchMetrics integration for mParticle"
 
     s.description      = <<-DESC
@@ -11,10 +11,10 @@ Pod::Spec.new do |s|
     s.license          = { :type => 'Apache 2.0', :file => 'LICENSE' }
     s.author           = { "mParticle" => "support@mparticle.com" }
     s.source           = { :git => "https://github.com/mparticle-integrations/mparticle-apple-integration-branchmetrics.git", :tag => s.version.to_s }
-    s.social_media_url = "https://twitter.com/mparticles"
+    s.social_media_url = "https://twitter.com/mparticle"
 
     s.ios.deployment_target = "8.0"
     s.ios.source_files      = 'mParticle-BranchMetrics/*.{h,m,mm}'
-    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.9.0'
-    s.ios.dependency 'Branch', '~> 0.27'
+    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.10.0'
+    s.ios.dependency 'Branch', '~> 0.28.1'
 end

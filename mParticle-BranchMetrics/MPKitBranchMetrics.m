@@ -1,21 +1,3 @@
-//
-//  MPKitBranchMetrics.m
-//
-//  Copyright 2016 mParticle, Inc.
-//
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
 #import "MPKitBranchMetrics.h"
 #import <Branch/Branch.h>
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -91,16 +73,6 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     [MParticle registerExtension:kitRegister];
 }
 
-static BOOL _appleSearchAdsDebugMode;
-
-+ (void) setAppleSearchAdsDebugMode:(BOOL)appleSearchAdsDebugMode_ {
-    _appleSearchAdsDebugMode = appleSearchAdsDebugMode_;
-}
-
-+ (BOOL) appleSearchAdsDebugMode {
-    return _appleSearchAdsDebugMode;
-}
-
 - (MPKitExecStatus*) execStatus:(MPKitReturnCode)returnCode {
     return [[MPKitExecStatus alloc] initWithSDKCode:self.class.kitCode returnCode:returnCode];
 }
@@ -135,7 +107,6 @@ static BOOL _appleSearchAdsDebugMode;
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
-        if (self.class.appleSearchAdsDebugMode) [self.branchInstance setAppleSearchAdsDebugMode];
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
             andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
@@ -151,12 +122,12 @@ static BOOL _appleSearchAdsDebugMode;
         // mParticle isn't calling back with the URL on startup fast enough or in the right order, so handle it here:
         NSURL*URL = self.launchOptions[UIApplicationLaunchOptionsURLKey];
         if (URL) [self.branchInstance handleDeepLinkWithNewSession:URL];
-
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             if (self.branchInstance) {
                 self.started = YES;
             }
-
+            
             NSMutableDictionary *userInfo = [@{
                 mParticleKitInstanceKey: [[self class] kitCode],
                 @"branchKey": branchKey
@@ -173,7 +144,8 @@ static BOOL _appleSearchAdsDebugMode;
 #pragma mark - MPKitInstanceProtocol Methods
 
 - (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value {
-    [self.kitApi logError:@"Unrecognized key attibute '%@'.", key];
+    NSLog(@"mParticle -> Branch Kit: Unrecognized key attribute '%@'.", key);
+    
     return [self execStatus:MPKitReturnCodeUnavailable];
 }
 
@@ -296,7 +268,7 @@ static BOOL _appleSearchAdsDebugMode;
         if (!_branchCategories) {
             _branchCategories = [NSSet setWithArray:BNCProductCategoryAllCategories()];
         }
-    return _branchCategories;
+        return _branchCategories;
     }
 }
 
@@ -320,7 +292,7 @@ static BOOL _appleSearchAdsDebugMode;
     addDecimalField(object.contentMetadata.price, Item Price);
     addDoubleField(object.contentMetadata.quantity, Quantity);
     addStringField(object.contentMetadata.currency, Currency Code);
-
+    
     return (dictionary.count == startCount) ? nil : object;
 }
 
@@ -374,16 +346,16 @@ static BOOL _appleSearchAdsDebugMode;
 - (BranchEvent*) branchEventWithStandardEvent:(MPEvent*)mpEvent {
     NSString *eventName = mpEvent.name;
     if (eventName.length == 0) return nil;
-
+    
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
     if (object) [event.contentItems addObject:object];
-
+    
     [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
     if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
-
+    
     return event;
 }
 
