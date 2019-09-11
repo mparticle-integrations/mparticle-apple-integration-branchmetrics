@@ -28,10 +28,7 @@ class APAppDelegate: UIResponder, UIApplicationDelegate {
 
         // Turn on all the debug output for testing:
         BNCLogSetDisplayLevel(.all)
-
-        // Turn on Apple Search Ad Debugging:
-        MPKitBranchMetrics.appleSearchAdsDebugMode = true
-
+        
         // Start mParticle
         let mParticle = MParticle.sharedInstance()
         mParticle.logLevel = .debug
