@@ -174,7 +174,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     } else if ([event isKindOfClass:[MPCommerceEvent class]]) {
         return [self routeCommerceEvent:(MPCommerceEvent *)event];
     } else {
-        return [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceAppsFlyer) returnCode:MPKitReturnCodeUnavailable];
+        return [self execStatus:MPKitReturnCodeUnavailable];
     }
 }
 
