@@ -1,2 +1,2 @@
-github "BranchMetrics/ios-branch-deep-linking" ~> 0.28.1
-github "mparticle/mparticle-apple-sdk" ~> 7.12.0
+github "BranchMetrics/ios-branch-deep-linking" ~> 0.29.1
+github "mparticle/mparticle-apple-sdk" ~> 7.12.1

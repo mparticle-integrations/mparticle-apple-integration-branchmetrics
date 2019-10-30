@@ -47,8 +47,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
                          annotation:(nullable id)annotation;
 
 - (MPKitExecStatus*_Nonnull)receivedUserNotification:(nonnull NSDictionary *)userInfo;
-- (MPKitExecStatus*_Nonnull)logCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent;
-- (MPKitExecStatus*_Nonnull)logEvent:(nonnull MPEvent *)event;
+- (MPKitExecStatus*_Nonnull)logBaseEvent:(nonnull MPBaseEvent *)event;
 - (MPKitExecStatus*_Nonnull)setKitAttribute:(nonnull NSString *)key value:(nullable id)value;
 - (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut;
 
@@ -169,12 +168,22 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)logEvent:(MPEvent *)mpEvent {
+- (nonnull MPKitExecStatus *)logBaseEvent:(nonnull MPBaseEvent *)event {
+    if ([event isKindOfClass:[MPEvent class]]) {
+        return [self routeEvent:(MPEvent *)event];
+    } else if ([event isKindOfClass:[MPCommerceEvent class]]) {
+        return [self routeCommerceEvent:(MPCommerceEvent *)event];
+    } else {
+        return [self execStatus:MPKitReturnCodeUnavailable];
+    }
+}
+
+- (MPKitExecStatus *)routeEvent:(MPEvent *)mpEvent {
     [[self branchEventWithStandardEvent:mpEvent] logEvent];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (nonnull MPKitExecStatus *)logCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent {
+- (nonnull MPKitExecStatus *)routeCommerceEvent:(nonnull MPCommerceEvent *)commerceEvent {
     [[self branchEventWithCommerceEvent:commerceEvent] logEvent];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
@@ -349,7 +358,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     
     BranchEvent *event = [BranchEvent customEventWithName:eventName];
     event.eventDescription = mpEvent.name;
-    NSMutableDictionary *dictionary = [mpEvent.info mutableCopy];
+    NSMutableDictionary *dictionary = [mpEvent.customAttributes mutableCopy];
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
     if (object) [event.contentItems addObject:object];
     
