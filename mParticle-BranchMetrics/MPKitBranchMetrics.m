@@ -360,11 +360,17 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     event.eventDescription = mpEvent.name;
     NSMutableDictionary *dictionary = [mpEvent.customAttributes mutableCopy];
     BranchUniversalObject *object = [self branchUniversalObjectFromDictionary:dictionary];
-    if (object) [event.contentItems addObject:object];
-    
-    [event.customData addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
-    if (mpEvent.category.length) event.customData[@"category"] = mpEvent.category;
-    
+    if (object) {
+        NSMutableArray<BranchUniversalObject*>* mutableCopy = [[NSMutableArray alloc] initWithArray:event.contentItems];
+        [mutableCopy addObject:object];
+        event.contentItems = mutableCopy;
+    }
+
+    NSMutableDictionary<NSString*, NSString*>* mutableDictionary = [[NSMutableDictionary alloc] initWithDictionary:event.customData];
+    [mutableDictionary addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
+    if (mpEvent.category.length) mutableDictionary[@"category"] = mpEvent.category;
+    event.customData = mutableDictionary;
+
     return event;
 }
 
@@ -446,7 +452,9 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
             obj.contentMetadata.currency = mpEvent.currency;
             obj.contentMetadata.customMetadata[@"product_list_name"] = mpEvent.productListName;
             obj.contentMetadata.customMetadata[@"product_list_source"] = mpEvent.productListSource;
-            [event.contentItems addObject:obj];
+            NSMutableArray<BranchUniversalObject*>* mutableCopy = [[NSMutableArray alloc] initWithArray:event.contentItems];
+            [mutableCopy addObject:obj];
+            event.contentItems = mutableCopy;
         }
     }
     for (NSString* impression in mpEvent.impressions.keyEnumerator) {
@@ -456,7 +464,9 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
             if (obj) {
                 obj.contentMetadata.currency = mpEvent.currency;
                 obj.contentMetadata.customMetadata[@"impression"] = impression;
-                [event.contentItems addObject:obj];
+                NSMutableArray<BranchUniversalObject*>* mutableCopy = [[NSMutableArray alloc] initWithArray:event.contentItems];
+                [mutableCopy addObject:obj];
+                event.contentItems = mutableCopy;
             }
         }
     }
@@ -466,12 +476,15 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
         obj.title = promo.name;
         obj.contentMetadata.customMetadata[@"position"] = promo.position;
         obj.contentMetadata.customMetadata[@"creative"] = promo.creative;
-        [event.contentItems addObject:obj];
+        NSMutableArray<BranchUniversalObject*>* mutableCopy = [[NSMutableArray alloc] initWithArray:event.contentItems];
+        [mutableCopy addObject:obj];
+        event.contentItems = mutableCopy;
     }
-    event.customData[@"product_list_name"] = mpEvent.productListName;
-    event.customData[@"product_list_source"] = mpEvent.productListSource;
-    event.customData[@"screen_name"] = mpEvent.screenName;
-    event.customData[@"checkout_options"] = mpEvent.checkoutOptions;
+    NSMutableDictionary<NSString*, NSString*>* mutableDictionary = [[NSMutableDictionary alloc] initWithDictionary:event.customData];
+    mutableDictionary[@"product_list_name"] = mpEvent.productListName;
+    mutableDictionary[@"product_list_source"] = mpEvent.productListSource;
+    mutableDictionary[@"screen_name"] = mpEvent.screenName;
+    mutableDictionary[@"checkout_options"] = mpEvent.checkoutOptions;
     event.currency = mpEvent.currency;
     event.affiliation = mpEvent.transactionAttributes.affiliation;
     event.coupon = mpEvent.transactionAttributes.couponCode;
@@ -481,10 +494,11 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     event.transactionID = mpEvent.transactionAttributes.transactionId;
     NSInteger checkoutStep = mpEvent.checkoutStep;
     if (checkoutStep >= 0 && checkoutStep < (NSInteger) 0x7fffffff) {
-        event.customData[@"checkout_step"] =
+        mutableDictionary[@"checkout_step"] =
             [NSString stringWithFormat:@"%ld", (long) mpEvent.checkoutStep];
     }
-    event.customData[@"non_interactive"] = mpEvent.nonInteractive ? @"true" : @"false";
+    mutableDictionary[@"non_interactive"] = mpEvent.nonInteractive ? @"true" : @"false";
+    event.customData = mutableDictionary;
     return event;
 }
 
