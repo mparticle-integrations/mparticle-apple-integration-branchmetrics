@@ -422,7 +422,7 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
         e.addProducts(self.products())
 
         // Add custom attibutes --
-        e.setCustomAttributes(["CustomKey": "CustomValue"])
+        //e.setCustomAttributes(["CustomKey": "CustomValue"])
 
         // Add a transaction --
         /*
