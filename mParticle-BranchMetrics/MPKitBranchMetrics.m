@@ -4,6 +4,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <UserNotifications/UNUserNotificationCenter.h>
 #endif
+#import "mParticle_BranchMetrics.h"
 
 __attribute__((constructor))
 void MPKitBranchMetricsLoadClass(void) {
@@ -105,6 +106,10 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     dispatch_once(&branchMetricsPredicate, ^{
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
+        
+        NSString *version = [NSString stringWithFormat:@"%f", mParticle_BranchMetricsVersionNumber];
+        [self.branchInstance registerPluginName:@"mParticle - iOS" version:version];
+        
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
