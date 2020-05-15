@@ -486,6 +486,9 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
         event.contentItems = mutableCopy;
     }
     NSMutableDictionary<NSString*, NSString*>* mutableDictionary = [[NSMutableDictionary alloc] initWithDictionary:event.customData];
+    if (mpEvent.customAttributes != nil) {
+        [mutableDictionary addEntriesFromDictionary:mpEvent.customAttributes];
+    }
     mutableDictionary[@"product_list_name"] = mpEvent.productListName;
     mutableDictionary[@"product_list_source"] = mpEvent.productListSource;
     mutableDictionary[@"screen_name"] = mpEvent.screenName;
