@@ -163,6 +163,18 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
         [self.branchInstance setIdentity:identityString];
         return [self execStatus:MPKitReturnCodeSuccess];
+    } else if (identityType == MPUserIdentityOther && identityString.length > 0) {
+        [self.branchInstance setIdentity:identityString];
+        return [self execStatus:MPKitReturnCodeSuccess];
+    } else if (identityType == MPUserIdentityOther2 && identityString.length > 0) {
+        [self.branchInstance setIdentity:identityString];
+        return [self execStatus:MPKitReturnCodeSuccess];
+    } else if (identityType == MPUserIdentityOther3 && identityString.length > 0) {
+        [self.branchInstance setIdentity:identityString];
+        return [self execStatus:MPKitReturnCodeSuccess];
+    } else if (identityType == MPUserIdentityOther4 && identityString.length > 0) {
+        [self.branchInstance setIdentity:identityString];
+        return [self execStatus:MPKitReturnCodeSuccess];
     } else {
         return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
