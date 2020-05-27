@@ -375,6 +375,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     [mutableDictionary addEntriesFromDictionary:[self stringDictionaryFromDictionary:dictionary]];
     if (mpEvent.category.length) mutableDictionary[@"category"] = mpEvent.category;
     event.customData = mutableDictionary;
+    event.alias = mutableDictionary[@"customer_event_alias"];
 
     return event;
 }
@@ -507,6 +508,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     }
     mutableDictionary[@"non_interactive"] = mpEvent.nonInteractive ? @"true" : @"false";
     event.customData = mutableDictionary;
+    event.alias = mutableDictionary[@"customer_event_alias"];
     return event;
 }
 
