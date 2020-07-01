@@ -17,8 +17,9 @@ void MPKitBranchMetricsLoadClass(void) {
 @end
 
 NSString *const ekBMAppKey = @"branchKey";
-NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
-NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
+NSString *const ekBMForwardScreenViews = @"forwardScreenViews";
+NSString *const ekBMEnableAppleSearchAds = @"enableAppleSearchAds";
+NSString *const ekBMUserIdentificationType = @"userIdentificationType";
 
 #pragma mark - MPKitBranchMetrics
 
@@ -54,6 +55,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 
 @property (assign) BOOL forwardScreenViews;
 @property (assign) BOOL enableAppleSearchAds;
+@property (assign) NSString userIdentificationType;
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
 @end
@@ -92,8 +94,9 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     if (!branchKey) {
         return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
-    self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
-    self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
+    self.forwardScreenViews = [configuration[ekBMForwardScreenViews] boolValue];
+    self.enableAppleSearchAds = [configuration[ekBMEnableAppleSearchAds] boolValue];
+    self.userIdentificationType = [configuration[ekBMUserIdentificationType] NSString];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -160,22 +163,39 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
                         identityType:(MPUserIdentity)identityType {
-    if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else if (identityType == MPUserIdentityOther && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else if (identityType == MPUserIdentityOther2 && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else if (identityType == MPUserIdentityOther3 && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else if (identityType == MPUserIdentityOther4 && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else {
+    if (identityString.length > 0 {
+        switch ([self.userIdentificationType lowercaseString]) {
+            case @"customerid":
+                if (identityType == MPUserIdentityCustomerId) {
+                    [self.branchInstance setIdentity:identityString];
+                    return [self execStatus:MPKitReturnCodeSuccess];
+                }
+            case @"mpid":
+                [self.branchInstance setIdentity:[NSString stringWithFormat:@"%@", [MPPersistenceController mpId]]];
+                return [self execStatus:MPKitReturnCodeSuccess];
+            case @"other":
+                if (identityType == MPUserIdentityOther) {
+                    [self.branchInstance setIdentity:identityString];
+                    return [self execStatus:MPKitReturnCodeSuccess];
+                }
+            case @"other2":
+                if (identityType == MPUserIdentityOther2) {
+                    [self.branchInstance setIdentity:identityString];
+                    return [self execStatus:MPKitReturnCodeSuccess];
+                }
+            case @"other3":
+                if (identityType == MPUserIdentityOther3) {
+                    [self.branchInstance setIdentity:identityString];
+                    return [self execStatus:MPKitReturnCodeSuccess];
+                }
+            case @"other4":
+                if (identityType == MPUserIdentityOther4) {
+                    [self.branchInstance setIdentity:identityString];
+                    return [self execStatus:MPKitReturnCodeSuccess];
+                }
+            default:
+                return [self execStatus:MPKitReturnCodeRequirementsNotMet];
+        }
         return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
 }
