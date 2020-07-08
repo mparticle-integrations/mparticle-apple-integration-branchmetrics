@@ -96,7 +96,7 @@ NSString *const ekBMUserIdentificationType = @"userIdentificationType";
     }
     self.forwardScreenViews = [configuration[ekBMForwardScreenViews] boolValue];
     self.enableAppleSearchAds = [configuration[ekBMEnableAppleSearchAds] boolValue];
-    self.userIdentificationType = [configuration[ekBMUserIdentificationType] NSString];
+    self.userIdentificationType = [NSString stringWithFormat:@"%@", configuration[ekBMUserIdentificationType]];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -163,7 +163,7 @@ NSString *const ekBMUserIdentificationType = @"userIdentificationType";
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
                         identityType:(MPUserIdentity)identityType {
-    if (identityString.length > 0 {
+    if (identityString.length > 0) {
         switch ([self.userIdentificationType lowercaseString]) {
             case @"customerid":
                 if (identityType == MPUserIdentityCustomerId) {
