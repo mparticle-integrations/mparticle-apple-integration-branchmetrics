@@ -408,7 +408,7 @@ NSString *const ekBMUserIdentificationType = @"userIdentificationType";
     if (mpEvent.category.length) mutableDictionary[@"category"] = mpEvent.category;
     event.customData = mutableDictionary;
     event.alias = mutableDictionary[@"customer_event_alias"];
-    
+
     return event;
 }
 
@@ -520,7 +520,8 @@ NSString *const ekBMUserIdentificationType = @"userIdentificationType";
     }
     NSMutableDictionary<NSString*, NSString*>* mutableDictionary = [[NSMutableDictionary alloc] initWithDictionary:event.customData];
     if (mpEvent.customAttributes != nil) {
-        [mutableDictionary addEntriesFromDictionary:mpEvent.customAttributes];
+        [mutableDictionary addEntriesFromDictionary:[self stringDictionaryFromDictionary:mpEvent.customAttributes]];
+        event.customData = mutableDictionary;
     }
     mutableDictionary[@"product_list_name"] = mpEvent.productListName;
     mutableDictionary[@"product_list_source"] = mpEvent.productListSource;
