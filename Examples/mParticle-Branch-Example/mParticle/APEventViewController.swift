@@ -237,7 +237,7 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
         let request = MPIdentityApiRequest.withEmptyUser()
         request.email = "foo@example.com"
         request.customerId = "cust_123456"
-        request.setUserIdentity("bar-id", identityType: MPUserIdentity.other)
+        request.setIdentity("bar-id", identityType: MPIdentity.other)
         MParticle.sharedInstance().identity.login(request, completion: nil)
     }
 
@@ -262,19 +262,21 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     func finishSetIdentityAlias(alias: String) {
         let request = MPIdentityApiRequest.withEmptyUser()
-        request.setUserIdentity(alias, identityType: MPUserIdentity.other)
-        request.onUserAlias = { (previousUser, newUser) -> Void in
+        request.setIdentity(alias, identityType: MPIdentity.other)
 
-            //copy anything that you want from the previous to the new user
-            //this snippet would copy everything
-
-            newUser.userAttributes = previousUser.userAttributes
-
-            let products = previousUser.cart.products() ?? []
-            if (products.count > 0) {
-                newUser.cart.addAllProducts(products, shouldLogEvents: false)
-            }
-        }
+        // TODO: This has been deprecated and removed.   Switch to mParticleIdentityStateChangeListener
+//        request.onUserAlias = { (previousUser, newUser) -> Void in
+//
+//            //copy anything that you want from the previous to the new user
+//            //this snippet would copy everything
+//
+//            newUser.userAttributes = previousUser.userAttributes
+//
+//            let products = previousUser.cart.products() ?? []
+//            if (products.count > 0) {
+//                newUser.cart.addAllProducts(products, shouldLogEvents: false)
+//            }
+//        }
         MParticle.sharedInstance().identity.login(request, completion: nil)
     }
 

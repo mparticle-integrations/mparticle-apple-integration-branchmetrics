@@ -250,7 +250,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-mParticle/Pods-mParticle-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-mParticle/Pods-mParticle-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Branch/Branch.framework",
 				"${BUILT_PRODUCTS_DIR}/mParticle-Apple-SDK/mParticle_Apple_SDK.framework",
 				"${BUILT_PRODUCTS_DIR}/mParticle-BranchMetrics/mParticle_BranchMetrics.framework",
@@ -263,7 +263,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle/Pods-mParticle-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mParticle/Pods-mParticle-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
