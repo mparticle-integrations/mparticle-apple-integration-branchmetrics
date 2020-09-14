@@ -16,7 +16,7 @@ void MPKitBranchMetricsLoadClass(void) {
 - (MPMessageType) messageType;
 @end
 
-NSString *const MPKitBranchMetricsVersionNumber = @"7.16.2";
+NSString *const MPKitBranchMetricsVersionNumber = @"7.16.3";
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
