@@ -20,6 +20,7 @@ NSString *const MPKitBranchMetricsVersionNumber = @"8.0.1";
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
+NSString *const userIdentificationType = @"userIdentificationType";
 
 #pragma mark - MPKitBranchMetrics
 
@@ -57,6 +58,8 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 @property (assign) BOOL enableAppleSearchAds;
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
+@property (readwrite) BOOL isMpidIdentityType;
+@property (readwrite) MPIdentity identityType;
 @end
 
 #pragma mark - MPKitBranchMetrics
@@ -95,8 +98,71 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     }
     self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
+    [self updateIdentityType:configuration];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
+
+- (void)updateIdentityType:(NSDictionary *)configuration {
+    //Shouldn't the config be passing a number rather than a string?
+        NSString *identityString = configuration[@"USER_IDENTIFICATION_TYPE"];
+        if (identityString != nil) {
+            if ([identityString isEqualToString:@"MPID"]) {
+                _isMpidIdentityType = true;
+            } else if ([identityString isEqualToString:@"customerid"]){
+                _identityType = MPIdentityCustomerId;
+            } else if ([identityString isEqualToString:@"email"]){
+                _identityType = MPIdentityEmail;
+            } else if ([identityString isEqualToString:@"facebook"]){
+                _identityType = MPIdentityFacebook;
+            } else if ([identityString isEqualToString:@"facebookcustomaudienceid"]){
+                _identityType = MPIdentityFacebookCustomAudienceId;
+            } else if ([identityString isEqualToString:@"google"]){
+                _identityType = MPIdentityGoogle;
+            } else if ([identityString isEqualToString:@"microsoft"]){
+                _identityType = MPIdentityMicrosoft;
+            } else if ([identityString isEqualToString:@"other"]){
+                _identityType = MPIdentityOther;
+            } else if ([identityString isEqualToString:@"twitter"]){
+                _identityType = MPIdentityTwitter;
+            } else if ([identityString isEqualToString:@"yahoo"]){
+                _identityType = MPIdentityYahoo;
+            } else if ([identityString isEqualToString:@"other2"]){
+                _identityType = MPIdentityOther2;
+            } else if ([identityString isEqualToString:@"other3"]){
+                _identityType = MPIdentityOther3;
+            } else if ([identityString isEqualToString:@"other4"]){
+                _identityType = MPIdentityOther4;
+            } else if ([identityString isEqualToString:@"other5"]){
+                _identityType = MPIdentityOther5;
+            } else if ([identityString isEqualToString:@"other6"]){
+                _identityType = MPIdentityOther6;
+            } else if ([identityString isEqualToString:@"other7"]){
+                _identityType = MPIdentityOther7;
+            } else if ([identityString isEqualToString:@"other8"]){
+                _identityType = MPIdentityOther8;
+            } else if ([identityString isEqualToString:@"other9"]){
+                _identityType = MPIdentityOther9;
+            } else if ([identityString isEqualToString:@"other10"]){
+                _identityType = MPIdentityOther10;
+            } else if ([identityString isEqualToString:@"mobile_number"]){
+                _identityType = MPIdentityMobileNumber;
+            } else if ([identityString isEqualToString:@"phone_number_2"]){
+                _identityType = MPIdentityPhoneNumber2;
+            } else if ([identityString isEqualToString:@"phone_number_3"]){
+                _identityType = MPIdentityPhoneNumber3;
+            } else if ([identityString isEqualToString:@"ios_idfa"]){
+                _identityType = MPIdentityIOSAdvertiserId;
+            } else if ([identityString isEqualToString:@"ios_idfv"]){
+                _identityType = MPIdentityIOSVendorId;
+            } else if ([identityString isEqualToString:@"push_token"]){
+                _identityType = MPIdentityPushToken;
+            } else if ([identityString isEqualToString:@"device_application_stamp"]){
+                _identityType = MPIdentityDeviceApplicationStamp;
+            } else {
+                _identityType = MPIdentityCustomerId;
+            }
+        }
+    }
 
 - (id const)providerKitInstance {
     return [self started] ? self.branchInstance : nil;
@@ -158,14 +224,33 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
-                        identityType:(MPUserIdentity)identityType {
-    if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else {
-        return [self execStatus:MPKitReturnCodeRequirementsNotMet];
+- (MPKitExecStatus *)onIdentifyComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+}
+
+- (MPKitExecStatus *)onLoginComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request{
+    [self updateUser:user];
+}
+
+- (MPKitExecStatus *)onLogoutComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+}
+
+- (MPKitExecStatus *)onModifyComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+}
+
+- (void)updateUser:(MParticleUser *)user {
+    NSString *identity;
+    if (_isMpidIdentityType) {
+        identity = user.userId.stringValue;
+    } else if (_identityType != nil) {
+        NSString *mPIdentity = user.identities[@(_identityType)];
+        if (mPIdentity != nil) {
+            identity = mPIdentity;
+        }
     }
+    [self.branchInstance setIdentity:identity];
 }
 
 - (MPKitExecStatus*_Nonnull)logout {
