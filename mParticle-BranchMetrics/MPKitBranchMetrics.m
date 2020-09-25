@@ -59,7 +59,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
 @property (readwrite) BOOL isMpidIdentityType;
-@property (readwrite) MPIdentity *identityType;
+@property (readwrite) MPIdentity identityType;
 @end
 
 #pragma mark - MPKitBranchMetrics
@@ -103,14 +103,14 @@ NSString *const userIdentificationType = @"userIdentificationType";
 }
 
 - (void)updateIdentityType:(NSDictionary *)configuration {
-        NSString *identityString = configuration[@"USER_IDENTIFICATION_TYPE"];
+        NSString *identityString = configuration[userIdentificationType];
         if (identityString != nil) {
             if ([identityString isEqualToString:@"MPID"]) {
                 _isMpidIdentityType = true;
             } else if ([identityString isEqualToString:@"CustomerId"]){
-                _identityType = @(MPIdentityCustomerId);
+                _identityType = MPIdentityCustomerId;
             } else if ([identityString isEqualToString:@"Email"]){
-                _identityType = nil;
+                _identityType = MPIdentityEmail;
             } else if ([identityString isEqualToString:@"Other"]){
                 _identityType = MPIdentityOther;
             } else if ([identityString isEqualToString:@"Other2"]){
@@ -138,7 +138,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
             } else if ([identityString isEqualToString:@"PhoneNumber3"]){
                 _identityType = MPIdentityPhoneNumber3;
             } else {
-                _identityType = nil;
+                _identityType = MPIdentityEmail;
             }
         }
     }
@@ -226,8 +226,8 @@ NSString *const userIdentificationType = @"userIdentificationType";
 - (void)updateUser:(FilteredMParticleUser *)user {
     if (_isMpidIdentityType) {
         [self.branchInstance setIdentity:user.userId.stringValue];
-    } else if (_identityType != nil) {
-        NSString *mPIdentity = user.userIdentities[_identityType];
+    } else if (_identityType != MPIdentityEmail) {
+        NSString *mPIdentity = user.userIdentities[@(_identityType)];
         if (mPIdentity != nil) {
             [self.branchInstance setIdentity:mPIdentity];
         }
