@@ -16,9 +16,11 @@ void MPKitBranchMetricsLoadClass(void) {
 - (MPMessageType) messageType;
 @end
 
+NSString *const MPKitBranchMetricsVersionNumber = @"8.0.1";
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
+NSString *const userIdentificationType = @"userIdentificationType";
 
 #pragma mark - MPKitBranchMetrics
 
@@ -56,6 +58,8 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 @property (assign) BOOL enableAppleSearchAds;
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
+@property (readwrite) BOOL isMpidIdentityType;
+@property (readwrite) MPIdentity identityType;
 @end
 
 #pragma mark - MPKitBranchMetrics
@@ -94,8 +98,50 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     }
     self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
+    [self updateIdentityType:configuration];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
+
+- (void)updateIdentityType:(NSDictionary *)configuration {
+        NSString *identityString = configuration[userIdentificationType];
+        if (identityString != nil) {
+            if ([identityString isEqualToString:@"MPID"]) {
+                _isMpidIdentityType = true;
+            } else if ([identityString isEqualToString:@"CustomerId"]){
+                _identityType = MPIdentityCustomerId;
+            } else if ([identityString isEqualToString:@"Email"]){
+                _identityType = MPIdentityEmail;
+            } else if ([identityString isEqualToString:@"Other"]){
+                _identityType = MPIdentityOther;
+            } else if ([identityString isEqualToString:@"Other2"]){
+                _identityType = MPIdentityOther2;
+            } else if ([identityString isEqualToString:@"Other3"]){
+                _identityType = MPIdentityOther3;
+            } else if ([identityString isEqualToString:@"Other4"]){
+                _identityType = MPIdentityOther4;
+            } else if ([identityString isEqualToString:@"Other5"]){
+                _identityType = MPIdentityOther5;
+            } else if ([identityString isEqualToString:@"Other6"]){
+                _identityType = MPIdentityOther6;
+            } else if ([identityString isEqualToString:@"Other7"]){
+                _identityType = MPIdentityOther7;
+            } else if ([identityString isEqualToString:@"Other8"]){
+                _identityType = MPIdentityOther8;
+            } else if ([identityString isEqualToString:@"Other9"]){
+                _identityType = MPIdentityOther9;
+            } else if ([identityString isEqualToString:@"Other10"]){
+                _identityType = MPIdentityOther10;
+            } else if ([identityString isEqualToString:@"MobileNumber"]){
+                _identityType = MPIdentityMobileNumber;
+            } else if ([identityString isEqualToString:@"PhoneNumber2"]){
+                _identityType = MPIdentityPhoneNumber2;
+            } else if ([identityString isEqualToString:@"PhoneNumber3"]){
+                _identityType = MPIdentityPhoneNumber3;
+            } else {
+                _identityType = MPIdentityEmail;
+            }
+        }
+    }
 
 - (id const)providerKitInstance {
     return [self started] ? self.branchInstance : nil;
@@ -107,8 +153,7 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
         
-        NSString *version = [NSString stringWithFormat:@"%f", mParticle_BranchMetricsVersionNumber];
-        [self.branchInstance registerPluginName:@"mParticle - iOS" version:version];
+        [self.branchInstance registerPluginName:@"mParticle - iOS" version:MPKitBranchMetricsVersionNumber];
         
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
@@ -158,13 +203,34 @@ NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)setUserIdentity:(NSString *)identityString
-                        identityType:(MPUserIdentity)identityType {
-    if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
-        [self.branchInstance setIdentity:identityString];
-        return [self execStatus:MPKitReturnCodeSuccess];
-    } else {
-        return [self execStatus:MPKitReturnCodeRequirementsNotMet];
+- (MPKitExecStatus *)onIdentifyComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)onLoginComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request{
+    [self updateUser:user];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)onLogoutComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)onModifyComplete:(FilteredMParticleUser *)user request:(FilteredMPIdentityApiRequest *)request {
+    [self updateUser:user];
+    return [self execStatus:MPKitReturnCodeSuccess];
+}
+
+- (void)updateUser:(FilteredMParticleUser *)user {
+    if (_isMpidIdentityType) {
+        [self.branchInstance setIdentity:user.userId.stringValue];
+    } else if (_identityType != MPIdentityEmail) {
+        NSString *mPIdentity = user.userIdentities[@(_identityType)];
+        if (mPIdentity != nil) {
+            [self.branchInstance setIdentity:mPIdentity];
+        }
     }
 }
 
