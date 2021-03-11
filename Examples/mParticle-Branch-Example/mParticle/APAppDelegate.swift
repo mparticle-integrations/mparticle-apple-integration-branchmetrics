@@ -27,7 +27,7 @@ class APAppDelegate: UIResponder, UIApplicationDelegate {
         APAppData.shared.initialize()
 
         // Turn on all the debug output for testing:
-        BNCLogSetDisplayLevel(.all)
+        Branch.getInstance().enableLogging()
         
         // Start mParticle
         let mParticle = MParticle.sharedInstance()
