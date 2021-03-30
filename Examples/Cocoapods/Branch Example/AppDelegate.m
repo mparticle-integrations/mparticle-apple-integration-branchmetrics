@@ -5,6 +5,7 @@
 
 #import "AppDelegate.h"
 @import mParticle_Apple_SDK;
+@import Branch;
 
 @interface AppDelegate ()
 
@@ -14,6 +15,7 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [[Branch getInstance] enableLogging];
     
     MParticleOptions *options = [MParticleOptions optionsWithKey:@"REPLACE ME" secret:@"REPLACE ME"];
     // This block lives forever - it will be invoke whenever there is a NEW link or attribution result
