@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-BranchMetrics"
-    s.version          = "8.0.3"
+    s.version          = "8.0.4"
     s.summary          = "BranchMetrics integration for mParticle"
 
     s.description      = <<-DESC
