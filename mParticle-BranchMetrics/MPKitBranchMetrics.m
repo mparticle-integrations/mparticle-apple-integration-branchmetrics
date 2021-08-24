@@ -160,6 +160,16 @@ NSString *const userIdentificationType = @"userIdentificationType";
         [self.branchInstance registerPluginName:@"mParticle - iOS" version:MPKitBranchMetricsVersionNumber];
         
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
+        
+        // iOS 15 Branch NativeLink™ support
+        // https://help.branch.io/developers-hub/docs/ios-advanced-features#nativelink-deferred-deep-linking
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wundeclared-selector"
+        if ([Branch respondsToSelector:@selector(checkPasteboardOnInstall)]) {
+            [Branch performSelector:@selector(checkPasteboardOnInstall)];
+        }
+        #pragma clang diagnostic pop
+        
         [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
             isReferrable:YES
             andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
