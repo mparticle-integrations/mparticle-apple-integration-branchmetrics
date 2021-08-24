@@ -165,8 +165,8 @@ NSString *const userIdentificationType = @"userIdentificationType";
         // https://help.branch.io/developers-hub/docs/ios-advanced-features#nativelink-deferred-deep-linking
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([Branch respondsToSelector:@selector(checkPasteboardOnInstall)]) {
-            [Branch performSelector:@selector(checkPasteboardOnInstall)];
+        if ([self.branchInstance respondsToSelector:@selector(checkPasteboardOnInstall)]) {
+            [self.branchInstance performSelector:@selector(checkPasteboardOnInstall)];
         }
         #pragma clang diagnostic pop
         
