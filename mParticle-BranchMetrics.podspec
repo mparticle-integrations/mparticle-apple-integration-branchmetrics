@@ -15,6 +15,6 @@ Pod::Spec.new do |s|
 
     s.ios.deployment_target = "9.0"
     s.ios.source_files      = 'mParticle-BranchMetrics/*.{h,m,mm}'
-    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.8.1'
-    s.ios.dependency 'Branch', '~> 1.43.1'
+    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.8'
+    s.ios.dependency 'Branch', '~> 1.43'
 end
