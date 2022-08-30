@@ -20,7 +20,7 @@ void MPKitBranchMetricsLoadClass(void) {
 - (MPMessageType) messageType;
 @end
 
-NSString *const MPKitBranchMetricsVersionNumber = @"8.0.1";
+NSString *const MPKitBranchMetricsVersionNumber = @"8.0.2";
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
 NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
@@ -157,7 +157,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
         NSString *branchKey = [self.configuration[ekBMAppKey] copy];
         self.branchInstance = [Branch getInstance:branchKey];
         
-        [self.branchInstance registerPluginName:@"mParticle - iOS" version:MPKitBranchMetricsVersionNumber];
+        [self.branchInstance registerPluginName:@"mParticleKit" version:MPKitBranchMetricsVersionNumber];
         
         if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
         
