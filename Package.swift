@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "mParticle-BranchMetrics",
-    platforms: [ .iOS(.v9) ],
+    platforms: [ .iOS(.v11) ],
     products: [
         .library(
             name: "mParticle-BranchMetrics",
@@ -13,10 +13,10 @@ let package = Package(
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
                url: "https://github.com/mParticle/mparticle-apple-sdk",
-               .upToNextMajor(from: "8.2.0")),
+               .upToNextMajor(from: "8.9.0")),
       .package(name: "Branch",
                url: "https://github.com/BranchMetrics/ios-branch-sdk-spm",
-               .upToNextMajor(from: "1.39.4")),
+               .upToNextMajor(from: "1.45.0")),
     ],
     targets: [
         .target(
