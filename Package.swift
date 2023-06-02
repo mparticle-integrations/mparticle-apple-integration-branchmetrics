@@ -9,6 +9,10 @@ let package = Package(
         .library(
             name: "mParticle-BranchMetrics",
             targets: ["mParticle-BranchMetrics"]),
+        .library(
+            name: "mParticle-BranchMetrics-NoLocation",
+            targets: ["mParticle-BranchMetrics-NoLocation"]
+        )
     ],
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
@@ -21,8 +25,21 @@ let package = Package(
     targets: [
         .target(
             name: "mParticle-BranchMetrics",
-            dependencies: ["mParticle-Apple-SDK","Branch"],
+            dependencies: [
+                .product(name: "mParticle-Apple-SDK", package: "mParticle-Apple-SDK"),
+                .product(name: "Branch", package: "Branch"),
+            ],
             path: "mParticle-BranchMetrics",
-            publicHeadersPath: "."),
+            publicHeadersPath: "."
+        ),
+        .target(
+            name: "mParticle-BranchMetrics-NoLocation",
+            dependencies: [
+                .product(name: "mParticle-Apple-SDK-NoLocation", package: "mParticle-Apple-SDK"),
+                .product(name: "Branch", package: "Branch"),
+            ],
+            path: "SPM/mParticle-BranchMetrics-NoLocation",
+            publicHeadersPath: "."
+        )
     ]
 )
