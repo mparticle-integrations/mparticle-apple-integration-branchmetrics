@@ -8,7 +8,7 @@
 
 import UIKit
 import mParticle_Apple_SDK
-import Branch
+import BranchSDK
 
 func BNCLog(_ level: BNCLogLevel,_ message: String, file: String = #file, line: Int32 = #line) {
     BNCLogWriteMessage(level, file, line, message)

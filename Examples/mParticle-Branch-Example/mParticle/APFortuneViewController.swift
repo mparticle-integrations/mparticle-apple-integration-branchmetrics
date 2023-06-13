@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Branch
+import BranchSDK
 
 class APFortuneViewController: UIViewController {
 
