@@ -7,8 +7,10 @@ FOUNDATION_EXPORT double mParticle_BranchMetricsVersionNumber;
 FOUNDATION_EXPORT const unsigned char mParticle_BranchMetricsVersionString[];
 
 #if defined(__has_include) && __has_include(<mParticle_BranchMetrics/MPKitBranchMetrics.h>)
-#import <mParticle_BranchMetrics/MPKitBranchMetrics.h>
+    #import <mParticle_BranchMetrics/MPKitBranchMetrics.h>
+#elif defined(__has_include) && __has_include(<mParticle_BranchMetrics_NoLocation/MPKitBranchMetrics.h>)
+    #import <mParticle_BranchMetrics_NoLocation/MPKitBranchMetrics.h>
 #else
-#import "MPKitBranchMetrics.h"
+    #import "MPKitBranchMetrics.h"
 #endif
 

@@ -9,20 +9,37 @@ let package = Package(
         .library(
             name: "mParticle-BranchMetrics",
             targets: ["mParticle-BranchMetrics"]),
+        .library(
+            name: "mParticle-BranchMetrics-NoLocation",
+            targets: ["mParticle-BranchMetrics-NoLocation"]
+        )
     ],
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
                url: "https://github.com/mParticle/mparticle-apple-sdk",
                .upToNextMajor(from: "8.9.0")),
-      .package(name: "Branch",
+      .package(name: "BranchSDK",
                url: "https://github.com/BranchMetrics/ios-branch-sdk-spm",
-               .upToNextMajor(from: "1.45.2")),
+               .upToNextMajor(from: "2.1.2")),
     ],
     targets: [
         .target(
             name: "mParticle-BranchMetrics",
-            dependencies: ["mParticle-Apple-SDK","Branch"],
+            dependencies: [
+                .product(name: "mParticle-Apple-SDK", package: "mParticle-Apple-SDK"),
+                .product(name: "BranchSDK", package: "BranchSDK"),
+            ],
             path: "mParticle-BranchMetrics",
-            publicHeadersPath: "."),
+            publicHeadersPath: "."
+        ),
+        .target(
+            name: "mParticle-BranchMetrics-NoLocation",
+            dependencies: [
+                .product(name: "mParticle-Apple-SDK-NoLocation", package: "mParticle-Apple-SDK"),
+                .product(name: "BranchSDK", package: "BranchSDK"),
+            ],
+            path: "SPM/mParticle-BranchMetrics-NoLocation",
+            publicHeadersPath: "."
+        )
     ]
 )

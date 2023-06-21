@@ -8,7 +8,7 @@
 
 import UIKit
 import mParticle_Apple_SDK
-import Branch
+import BranchSDK
 
 func BNCLog(_ level: BNCLogLevel,_ message: String, file: String = #file, line: Int32 = #line) {
     BNCLogWriteMessage(level, file, line, message)
@@ -329,7 +329,7 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBAction func logScreenComplex(row: AnyObject) {
         if let event = MPEvent.init(name: "Awesome Screen Complex", type: .userContent) {
-            event.info = [
+            event.customAttributes = [
                 "modal": "false",
                 "color": "green"
             ]
@@ -343,10 +343,10 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
         let e = MPEvent.init(name: name, type: type) ?? MPEvent.init()
         e.category = "Toys & Games"
         e.addCustomFlag("CustomFlag", withKey:"CustomValue")
-        if (e.info == nil) {
-            e.info = ["InfoVal": "InfoKey"]
+        if (e.customAttributes == nil) {
+            e.customAttributes = ["InfoVal": "InfoKey"]
         } else {
-            e.info?["InfoVal"] = "InfoKey"
+            e.customAttributes?["InfoVal"] = "InfoKey"
         }
         return e
     }
@@ -462,7 +462,7 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         let container = MPPromotionContainer.init(action:.view, promotion: promotion)
         let event = MPCommerceEvent.init(promotionContainer: container)
-        MParticle.sharedInstance().logCommerceEvent(event)
+        MParticle.sharedInstance().logEvent(event)
     }
 
     @IBAction func promotionClickEvent(row: AnyObject) {
@@ -480,62 +480,62 @@ class APEventViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         let container = MPPromotionContainer.init(action:.click, promotion: promotion)
         let event = MPCommerceEvent.init(promotionContainer: container)
-        MParticle.sharedInstance().logCommerceEvent(event)
+        MParticle.sharedInstance().logEvent(event)
     }
 
     @IBAction func impressionEvent(row: AnyObject) {
         let product = self.createProduct(number: 1)
         let event = MPCommerceEvent.init(impressionName: "Suggest Products List", product: product)
-        MParticle.sharedInstance().logCommerceEvent(event)
+        MParticle.sharedInstance().logEvent(event)
     }
 
     @IBAction func addToCartEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .addToCart)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func removeFromCartEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .removeFromCart)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func addToWishlistEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .addToWishList)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func removeFromWishlistEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .removeFromWishlist)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func checkoutEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .checkout)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func checkoutOptionsEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .checkoutOptions)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func clickEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .click)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func viewDetailEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .viewDetail)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func purchaseEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .purchase)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 
     @IBAction func refundEvent(row: AnyObject) {
         let e = self.createCommerceEvent(action: .refund)
-        MParticle.sharedInstance().logCommerceEvent(e)
+        MParticle.sharedInstance().logEvent(e)
     }
 }

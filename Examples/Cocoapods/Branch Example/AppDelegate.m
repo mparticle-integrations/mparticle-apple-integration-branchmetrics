@@ -5,7 +5,7 @@
 
 #import "AppDelegate.h"
 @import mParticle_Apple_SDK;
-@import Branch;
+@import BranchSDK;
 
 @interface AppDelegate ()
 

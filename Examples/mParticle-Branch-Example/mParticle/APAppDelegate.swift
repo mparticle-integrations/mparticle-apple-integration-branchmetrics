@@ -9,7 +9,7 @@
 import UIKit
 import mParticle_Apple_SDK
 import mParticle_BranchMetrics
-import Branch
+import BranchSDK
 
 @UIApplicationMain
 class APAppDelegate: UIResponder, UIApplicationDelegate {

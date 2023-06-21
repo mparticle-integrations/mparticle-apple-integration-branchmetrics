@@ -1,6 +1,6 @@
 #import "MPKitBranchMetrics.h"
 #if defined(__has_include) && __has_include(<Branch/Branch.h>)
-    #import <Branch/Branch.h>
+    #import <BranchSDK/Branch.h>
 #else
     #import "Branch.h"
 #endif
@@ -9,6 +9,7 @@
 #import <UserNotifications/UNUserNotificationCenter.h>
 #endif
 #import "mParticle_BranchMetrics.h"
+#import <BranchSDK/BranchEvent.h>
 
 __attribute__((constructor))
 void MPKitBranchMetricsLoadClass(void) {
