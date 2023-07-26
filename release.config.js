@@ -30,9 +30,6 @@ module.exports = {
         "@semantic-release/github",
         {
           assets: [
-            "mParticle_BranchMetrics.framework.zip",
-            "mParticle_BranchMetrics.xcframework.zip",
-            "generated-docs.zip",
           ],
         },
       ],
