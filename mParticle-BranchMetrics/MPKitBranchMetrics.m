@@ -24,7 +24,6 @@ void MPKitBranchMetricsLoadClass(void) {
 NSString *const MPKitBranchMetricsVersionNumber = @"8.1.0";
 NSString *const ekBMAppKey = @"branchKey";
 NSString *const ekBMAForwardScreenViews = @"forwardScreenViews";
-NSString *const ekBMAEnableAppleSearchAds = @"enableAppleSearchAds";
 NSString *const userIdentificationType = @"userIdentificationType";
 
 #pragma mark - MPKitBranchMetrics
@@ -60,7 +59,6 @@ NSString *const userIdentificationType = @"userIdentificationType";
 - (MPKitExecStatus*_Nonnull)setOptOut:(BOOL)optOut;
 
 @property (assign) BOOL forwardScreenViews;
-@property (assign) BOOL enableAppleSearchAds;
 @property (strong, nullable) Branch *branchInstance;
 @property (readwrite) BOOL started;
 @property (readwrite) BOOL isMpidIdentityType;
@@ -102,7 +100,6 @@ NSString *const userIdentificationType = @"userIdentificationType";
         return [self execStatus:MPKitReturnCodeRequirementsNotMet];
     }
     self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
-    self.enableAppleSearchAds = [configuration[ekBMAEnableAppleSearchAds] boolValue];
     [self updateIdentityType:configuration];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
@@ -159,9 +156,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
         self.branchInstance = [Branch getInstance:branchKey];
         
         [self.branchInstance registerPluginName:@"mParticleKit" version:MPKitBranchMetricsVersionNumber];
-        
-        if (self.enableAppleSearchAds) [self.branchInstance delayInitToCheckForSearchAds];
-        
+                
         // iOS 15 Branch NativeLink™ support
         // https://help.branch.io/developers-hub/docs/ios-advanced-features#nativelink-deferred-deep-linking
         #pragma clang diagnostic push
