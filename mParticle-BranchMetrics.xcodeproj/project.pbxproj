@@ -291,7 +291,7 @@
 				);
 				INFOPLIST_FILE = "mParticle-BranchMetrics/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mparticle.mParticle-BranchMetrics";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -313,7 +313,7 @@
 				);
 				INFOPLIST_FILE = "mParticle-BranchMetrics/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mparticle.mParticle-BranchMetrics";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
