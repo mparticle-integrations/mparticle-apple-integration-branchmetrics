@@ -21,7 +21,7 @@
 		DB94016F1CB703F2007ABB18 /* mParticle_BranchMetrics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mParticle_BranchMetrics.h; sourceTree = "<group>"; };
 		DB9401711CB703F2007ABB18 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DB9401781CB70C58007ABB18 /* mParticle_Apple_SDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mParticle_Apple_SDK.framework; path = Carthage/Build/iOS/mParticle_Apple_SDK.framework; sourceTree = "<group>"; };
-		DBBE32A91E09CA3C008DDECB /* BranchSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BranchSDK.xcframework; path = ../Carthage/Carthage/Build/iOS/BranchSDK.xcframework; sourceTree = "<group>"; };
+		DBBE32A91E09CA3C008DDECB /* BranchSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BranchSDK.xcframework; path = Carthage/Build/BranchSDK.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
