@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,10 +13,29 @@
 		04266AD81D1C3CEE00556828 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04266AD61D1C3CEE00556828 /* Main.storyboard */; };
 		04266ADA1D1C3CEE00556828 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04266AD91D1C3CEE00556828 /* Assets.xcassets */; };
 		04266ADD1D1C3CEE00556828 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04266ADB1D1C3CEE00556828 /* LaunchScreen.storyboard */; };
-		0474F191201689440079DCA8 /* Branch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* Branch.framework */; };
-		0474F193201689470079DCA8 /* mParticle_Apple_SDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.framework */; };
-		0474F1952016894A0079DCA8 /* mParticle_BranchMetrics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.framework */; };
+		E73923982B59BAFC00ED8AA0 /* BranchSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; };
+		E73923992B59BAFC00ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E739239B2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; };
+		E739239C2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E739239D2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; };
+		E739239E2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E739239A2B59BAFC00ED8AA0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E739239E2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */,
+				E73923992B59BAFC00ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */,
+				E739239C2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		04266ACA1D1C3CEE00556828 /* Branch Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Branch Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -30,9 +49,9 @@
 		04266ADC1D1C3CEE00556828 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04266ADE1D1C3CEE00556828 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04266AE41D1C3E6600556828 /* Branch Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Branch Example.entitlements"; sourceTree = "<group>"; };
-		0474F190201689430079DCA8 /* Branch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Branch.framework; path = Carthage/Build/iOS/Branch.framework; sourceTree = "<group>"; };
-		0474F192201689470079DCA8 /* mParticle_Apple_SDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mParticle_Apple_SDK.framework; path = Carthage/Build/iOS/mParticle_Apple_SDK.framework; sourceTree = "<group>"; };
-		0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mParticle_BranchMetrics.framework; path = Carthage/Build/iOS/mParticle_BranchMetrics.framework; sourceTree = "<group>"; };
+		0474F190201689430079DCA8 /* BranchSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BranchSDK.xcframework; path = Carthage/Build/BranchSDK.xcframework; sourceTree = "<group>"; };
+		0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mParticle_Apple_SDK.xcframework; path = Carthage/Build/mParticle_Apple_SDK.xcframework; sourceTree = "<group>"; };
+		0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mParticle_BranchMetrics.xcframework; path = Carthage/Build/mParticle_BranchMetrics.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,9 +59,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0474F193201689470079DCA8 /* mParticle_Apple_SDK.framework in Frameworks */,
-				0474F191201689440079DCA8 /* Branch.framework in Frameworks */,
-				0474F1952016894A0079DCA8 /* mParticle_BranchMetrics.framework in Frameworks */,
+				E739239D2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */,
+				E73923982B59BAFC00ED8AA0 /* BranchSDK.xcframework in Frameworks */,
+				E739239B2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,9 +113,9 @@
 		0474F18F201689430079DCA8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.framework */,
-				0474F192201689470079DCA8 /* mParticle_Apple_SDK.framework */,
-				0474F190201689430079DCA8 /* Branch.framework */,
+				0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */,
+				0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */,
+				0474F190201689430079DCA8 /* BranchSDK.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -111,7 +130,7 @@
 				04266AC61D1C3CEE00556828 /* Sources */,
 				04266AC71D1C3CEE00556828 /* Frameworks */,
 				04266AC81D1C3CEE00556828 /* Resources */,
-				0474F1962016896E0079DCA8 /* ShellScript */,
+				E739239A2B59BAFC00ED8AA0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -173,28 +192,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		0474F1962016896E0079DCA8 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Carthage/Build/iOS/Branch.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/mParticle_Apple_SDK.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/mParticle_BranchMetrics.framework",
-			);
-			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Branch.framework",
-				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/mParticle_Apple_SDK.framework",
-				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/mParticle_BranchMetrics.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		04266AC61D1C3CEE00556828 /* Sources */ = {
@@ -324,7 +321,10 @@
 				);
 				INFOPLIST_FILE = "Branch Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mparticle.branchtesterapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -341,7 +341,10 @@
 				);
 				INFOPLIST_FILE = "Branch Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mparticle.branchtesterapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
