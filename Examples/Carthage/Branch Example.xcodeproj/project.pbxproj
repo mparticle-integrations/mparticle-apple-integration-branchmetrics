@@ -13,24 +13,24 @@
 		04266AD81D1C3CEE00556828 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04266AD61D1C3CEE00556828 /* Main.storyboard */; };
 		04266ADA1D1C3CEE00556828 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04266AD91D1C3CEE00556828 /* Assets.xcassets */; };
 		04266ADD1D1C3CEE00556828 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04266ADB1D1C3CEE00556828 /* LaunchScreen.storyboard */; };
-		E73923982B59BAFC00ED8AA0 /* BranchSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; };
-		E73923992B59BAFC00ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E739239B2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; };
-		E739239C2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E739239D2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; };
-		E739239E2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E739239F2B607F1400ED8AA0 /* BranchSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; };
+		E73923A02B607F1400ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F190201689430079DCA8 /* BranchSDK.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E73923A22B607F1800ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; };
+		E73923A32B607F1800ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F192201689470079DCA8 /* mParticle_Apple_SDK.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E73923A42B607F1A00ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; };
+		E73923A52B607F1A00ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0474F1942016894A0079DCA8 /* mParticle_BranchMetrics.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		E739239A2B59BAFC00ED8AA0 /* Embed Frameworks */ = {
+		E73923A12B607F1400ED8AA0 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				E739239E2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */,
-				E73923992B59BAFC00ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */,
-				E739239C2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */,
+				E73923A52B607F1A00ED8AA0 /* mParticle_BranchMetrics.xcframework in Embed Frameworks */,
+				E73923A02B607F1400ED8AA0 /* BranchSDK.xcframework in Embed Frameworks */,
+				E73923A32B607F1800ED8AA0 /* mParticle_Apple_SDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -59,9 +59,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E739239D2B59BB0000ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */,
-				E73923982B59BAFC00ED8AA0 /* BranchSDK.xcframework in Frameworks */,
-				E739239B2B59BAFE00ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */,
+				E73923A42B607F1A00ED8AA0 /* mParticle_BranchMetrics.xcframework in Frameworks */,
+				E73923A22B607F1800ED8AA0 /* mParticle_Apple_SDK.xcframework in Frameworks */,
+				E739239F2B607F1400ED8AA0 /* BranchSDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,7 +130,7 @@
 				04266AC61D1C3CEE00556828 /* Sources */,
 				04266AC71D1C3CEE00556828 /* Frameworks */,
 				04266AC81D1C3CEE00556828 /* Resources */,
-				E739239A2B59BAFC00ED8AA0 /* Embed Frameworks */,
+				E73923A12B607F1400ED8AA0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
