@@ -152,7 +152,6 @@
 				TargetAttributes = {
 					04266AC91D1C3CEE00556828 = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = DLD43Y3TRP;
 						SystemCapabilities = {
 							com.apple.SafariKeychain = {
 								enabled = 1;
@@ -315,6 +314,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Branch Example/Branch Example.entitlements";
+				DEVELOPMENT_TEAM = R63EM248DP;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -325,7 +325,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mparticle.branchtesterapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.branch.sdk.Branch-TestBed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -335,6 +335,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Branch Example/Branch Example.entitlements";
+				DEVELOPMENT_TEAM = R63EM248DP;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -345,7 +346,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mparticle.branchtesterapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.branch.sdk.Branch-TestBed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
