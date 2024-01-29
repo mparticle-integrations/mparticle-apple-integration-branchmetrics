@@ -1,5 +1,5 @@
 #import "MPKitBranchMetrics.h"
-#if defined(__has_include) && __has_include(<Branch/Branch.h>)
+#if defined(__has_include) && __has_include(<BranchSDK/Branch.h>)
     #import <BranchSDK/Branch.h>
 #else
     #import "Branch.h"
