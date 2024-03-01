@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D344232E2B923208006CD046 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D344232D2B923208006CD046 /* PrivacyInfo.xcprivacy */; };
 		DB7E05A61CB819D300967FDF /* MPKitBranchMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = DB7E05A41CB819D300967FDF /* MPKitBranchMetrics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB7E05A71CB819D300967FDF /* MPKitBranchMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = DB7E05A51CB819D300967FDF /* MPKitBranchMetrics.m */; };
 		DB9401701CB703F2007ABB18 /* mParticle_BranchMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = DB94016F1CB703F2007ABB18 /* mParticle_BranchMetrics.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -15,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D344232D2B923208006CD046 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		DB7E05A41CB819D300967FDF /* MPKitBranchMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPKitBranchMetrics.h; sourceTree = "<group>"; };
 		DB7E05A51CB819D300967FDF /* MPKitBranchMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPKitBranchMetrics.m; sourceTree = "<group>"; };
 		DB94016C1CB703F2007ABB18 /* mParticle_BranchMetrics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = mParticle_BranchMetrics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +61,7 @@
 			children = (
 				DB9401711CB703F2007ABB18 /* Info.plist */,
 				DB94016F1CB703F2007ABB18 /* mParticle_BranchMetrics.h */,
+				D344232D2B923208006CD046 /* PrivacyInfo.xcprivacy */,
 				DB7E05A41CB819D300967FDF /* MPKitBranchMetrics.h */,
 				DB7E05A51CB819D300967FDF /* MPKitBranchMetrics.m */,
 			);
@@ -145,6 +148,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D344232E2B923208006CD046 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
