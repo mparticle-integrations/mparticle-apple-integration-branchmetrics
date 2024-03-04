@@ -4,8 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:b8be.test-app.link</string>
-		<string>applinks:b8be-alternate.test-app.link</string>
+		<string>applinks:bnc.lt</string>
+		<string>applinks:bnctestbed.app.link</string>
 	</array>
 </dict>
 </plist>

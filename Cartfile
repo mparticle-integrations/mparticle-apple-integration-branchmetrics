@@ -1,2 +1,3 @@
-github "BranchMetrics/ios-branch-deep-linking" ~> 3.3.0
+
 github "mparticle/mparticle-apple-sdk" ~> 8.9
+github "BranchMetrics/ios-branch-deep-linking" ~> 3.0.1
