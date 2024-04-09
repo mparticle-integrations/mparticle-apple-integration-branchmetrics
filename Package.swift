@@ -20,7 +20,7 @@ let package = Package(
                .upToNextMajor(from: "8.9.0")),
       .package(name: "BranchSDK",
                url: "https://github.com/BranchMetrics/ios-branch-sdk-spm",
-               .upToNextMajor(from: "3.0.1")),
+               .upToNextMajor(from: "3.4.1")),
     ],
     targets: [
         .target(
