@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
                url: "https://github.com/mParticle/mparticle-apple-sdk",
-               .upToNextMajor(from: "8.9.0")),
+               .upToNextMajor(from: "8.19.0")),
       .package(name: "BranchSDK",
                url: "https://github.com/BranchMetrics/ios-branch-sdk-spm",
                .upToNextMajor(from: "3.4.1")),

@@ -16,6 +16,6 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = "12.0"
     s.ios.source_files      = 'mParticle-BranchMetrics/*.{h,m,mm}'
     s.ios.resource_bundles  = { 'mParticle-BranchMetrics-Privacy' => ['mParticle-BranchMetrics/PrivacyInfo.xcprivacy'] }
-    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.9'
+    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.19'
     s.ios.dependency 'BranchSDK', '~> 3.4'
 end
