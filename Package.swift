@@ -30,6 +30,7 @@ let package = Package(
                 .product(name: "BranchSDK", package: "BranchSDK"),
             ],
             path: "mParticle-BranchMetrics",
+            resources: [.process("PrivacyInfo.xcprivacy")],
             publicHeadersPath: "."
         ),
         .target(
@@ -39,6 +40,7 @@ let package = Package(
                 .product(name: "BranchSDK", package: "BranchSDK"),
             ],
             path: "SPM/mParticle-BranchMetrics-NoLocation",
+            resources: [.process("PrivacyInfo.xcprivacy")],
             publicHeadersPath: "."
         )
     ]
