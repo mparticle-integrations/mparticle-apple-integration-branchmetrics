@@ -193,7 +193,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
             
             NSMutableDictionary *userInfo = [@{
                 mParticleKitInstanceKey: [[self class] kitCode],
-                @"branchKey": branchKey
+                @"branchKey": (self.configuration[ekBMAppKey] != nil) ? self.configuration[ekBMAppKey] : @""
             } mutableCopy];
 
             [[NSNotificationCenter defaultCenter]
