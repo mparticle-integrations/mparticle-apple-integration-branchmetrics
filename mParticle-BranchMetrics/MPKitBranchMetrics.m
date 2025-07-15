@@ -105,6 +105,7 @@ NSString *const userIdentificationType = @"userIdentificationType";
     }
     self.forwardScreenViews = [configuration[ekBMAForwardScreenViews] boolValue];
     [self updateIdentityType:configuration];
+    [self start];
     return [self execStatus:MPKitReturnCodeSuccess];
 }
 
@@ -154,54 +155,56 @@ NSString *const userIdentificationType = @"userIdentificationType";
 }
 
 - (void)start {
-    static dispatch_once_t branchMetricsPredicate = 0;
-    dispatch_once(&branchMetricsPredicate, ^{
-        NSString *branchKey = [self.configuration[ekBMAppKey] copy];
-        self.branchInstance = [Branch getInstance:branchKey];
-        
-        [self.branchInstance registerPluginName:@"mParticleKit" version:MPKitBranchMetricsVersionNumber];
-                
-        // iOS 15 Branch NativeLink™ support
-        // https://help.branch.io/developers-hub/docs/ios-advanced-features#nativelink-deferred-deep-linking
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wundeclared-selector"
-        if ([self.branchInstance respondsToSelector:@selector(checkPasteboardOnInstall)]) {
-            [self.branchInstance performSelector:@selector(checkPasteboardOnInstall)];
-        }
-        #pragma clang diagnostic pop
-        
-        [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
-            isReferrable:YES
-            andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
-            MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
-            if (error) {
-                [self.kitApi onAttributionCompleteWithResult:attributionResult error:error];
-                return;
-            }
-            attributionResult.linkInfo = params;
-            [self->_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
-        }];
-
-        // mParticle isn't calling back with the URL on startup fast enough or in the right order, so handle it here:
-        NSURL*URL = self.launchOptions[UIApplicationLaunchOptionsURLKey];
-        if (URL) [self.branchInstance handleDeepLinkWithNewSession:URL];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (self.branchInstance) {
-                self.started = YES;
-            }
+    if (self.configuration[ekBMAppKey] != nil) {
+        static dispatch_once_t branchMetricsPredicate = 0;
+        dispatch_once(&branchMetricsPredicate, ^{
+            NSString *branchKey = [self.configuration[ekBMAppKey] copy];
+            self.branchInstance = [Branch getInstance:branchKey];
             
-            NSMutableDictionary *userInfo = [@{
-                mParticleKitInstanceKey: [[self class] kitCode],
-                @"branchKey": (self.configuration[ekBMAppKey] != nil) ? self.configuration[ekBMAppKey] : @""
-            } mutableCopy];
+            [self.branchInstance registerPluginName:@"mParticleKit" version:MPKitBranchMetricsVersionNumber];
+                    
+            // iOS 15 Branch NativeLink™ support
+            // https://help.branch.io/developers-hub/docs/ios-advanced-features#nativelink-deferred-deep-linking
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wundeclared-selector"
+            if ([self.branchInstance respondsToSelector:@selector(checkPasteboardOnInstall)]) {
+                [self.branchInstance performSelector:@selector(checkPasteboardOnInstall)];
+            }
+            #pragma clang diagnostic pop
+            
+            [self.branchInstance initSessionWithLaunchOptions:self.launchOptions
+                isReferrable:YES
+                andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {
+                MPAttributionResult *attributionResult = [[MPAttributionResult alloc] init];
+                if (error) {
+                    [self.kitApi onAttributionCompleteWithResult:attributionResult error:error];
+                    return;
+                }
+                attributionResult.linkInfo = params;
+                [self->_kitApi onAttributionCompleteWithResult:attributionResult error:nil];
+            }];
 
-            [[NSNotificationCenter defaultCenter]
-                postNotificationName:mParticleKitDidBecomeActiveNotification
-                object:nil
-                userInfo:userInfo];
+            // mParticle isn't calling back with the URL on startup fast enough or in the right order, so handle it here:
+            NSURL*URL = self.launchOptions[UIApplicationLaunchOptionsURLKey];
+            if (URL) [self.branchInstance handleDeepLinkWithNewSession:URL];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (self.branchInstance) {
+                    self.started = YES;
+                }
+                
+                NSMutableDictionary *userInfo = [@{
+                    mParticleKitInstanceKey: [[self class] kitCode],
+                    @"branchKey": (self.configuration[ekBMAppKey] != nil) ? self.configuration[ekBMAppKey] : @""
+                } mutableCopy];
+
+                [[NSNotificationCenter defaultCenter]
+                    postNotificationName:mParticleKitDidBecomeActiveNotification
+                    object:nil
+                    userInfo:userInfo];
+            });
         });
-    });
+    }
 }
 
 #pragma mark - MPKitInstanceProtocol Methods
